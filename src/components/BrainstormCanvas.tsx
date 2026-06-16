@@ -129,7 +129,13 @@ export function BrainstormCanvas() {
       <div className="flex-1 min-h-0">
         <NodeCanvas
           nodes={data.nodes}
-          edges={data.edges}
+          edges={data.edges.map((e) => ({
+            from: e.from,
+            to: e.to,
+            fromPort: e.fromPort ?? undefined,
+            toPort: e.toPort ?? undefined,
+            label: e.label ?? undefined,
+          }))}
           shapes={data.shapes ?? []}
           selectedShapeId={selectedShapeId}
           onSelectShape={setSelectedShapeId}

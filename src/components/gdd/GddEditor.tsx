@@ -50,7 +50,7 @@ export function GddEditor() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const segments = file?.segments ?? [];
+  const segments = useMemo(() => file?.segments ?? [], [file?.segments]);
 
   function addSegment(type: SegmentType, atIndex?: number) {
     const ns: Segment = {
