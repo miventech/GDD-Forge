@@ -50,10 +50,7 @@ export function GddEditor() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  if (!file) return null;
-
-  const project = file.project;
-  const segments = file.segments;
+  const segments = file?.segments ?? [];
 
   function addSegment(type: SegmentType, atIndex?: number) {
     const ns: Segment = {
@@ -168,6 +165,9 @@ export function GddEditor() {
       return segmentMatchesQuery(s, query);
     });
   }, [segments, query, typeFilter]);
+
+  if (!file) return null;
+  const project = file.project;
 
   return (
     <DndContext
