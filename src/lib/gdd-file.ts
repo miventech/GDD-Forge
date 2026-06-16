@@ -29,6 +29,19 @@ export type GddMagic = typeof GDD_MAGIC;
 export type TaskStatus = "todo" | "in-progress" | "done" | "blocked";
 export type TaskPriority = "low" | "medium" | "high";
 
+export const TASK_STATUS_KEYS: Record<TaskStatus, string> = {
+  todo: "checklist.status.todo",
+  "in-progress": "checklist.status.inProgress",
+  done: "checklist.status.done",
+  blocked: "checklist.status.blocked",
+};
+
+export const TASK_PRIORITY_KEYS: Record<TaskPriority, string> = {
+  low: "checklist.priority.low",
+  medium: "checklist.priority.medium",
+  high: "checklist.priority.high",
+};
+
 export type Task = {
   id: string;
   title: string;
@@ -50,6 +63,12 @@ export type TaskGroup = {
 
 export type DecisionStatus = "open" | "taken" | "reverted";
 
+export const DECISION_STATUS_KEYS: Record<DecisionStatus, string> = {
+  open: "decisions.status.open",
+  taken: "decisions.status.taken",
+  reverted: "decisions.status.reverted",
+};
+
 export type Decision = {
   id: string;
   title: string;
@@ -61,6 +80,13 @@ export type Decision = {
 };
 
 export type FeatureStatus = "planned" | "in-progress" | "done" | "cut";
+
+export const FEATURE_STATUS_KEYS: Record<FeatureStatus, string> = {
+  planned: "features.status.planned",
+  "in-progress": "features.status.inProgress",
+  done: "features.status.done",
+  cut: "features.status.cut",
+};
 
 export type Feature = {
   id: string;

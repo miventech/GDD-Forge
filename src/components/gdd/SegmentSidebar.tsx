@@ -1,7 +1,8 @@
 "use client";
 import { useDraggable } from "@dnd-kit/core";
 import { Sparkles, AlignLeft, Image as ImageIcon, LayoutGrid, Quote, User, Bug, Crown, RotateCw, MessageCircle, NotebookPen, Activity } from "lucide-react";
-import { SEGMENT_LABELS, SegmentType } from "@/lib/segment-types";
+import { SEGMENT_LABEL_KEYS, SegmentType } from "@/lib/segment-types";
+import { useT } from "@/lib/i18n";
 
 const ICONS: Record<SegmentType, any> = {
   hero: Sparkles,
@@ -23,22 +24,24 @@ export const SIDEBAR_TYPES: SegmentType[] = [
 ];
 
 export function SegmentSidebar({ onAdd }: { onAdd: (type: SegmentType) => void }) {
+  const { t } = useT();
   return (
     <aside className="hidden md:flex flex-col gap-1.5 w-48 sticky top-20 self-start p-2 border border-line rounded-lg bg-bg-primary max-h-[calc(100vh-6rem)] overflow-y-auto">
       <p className="text-[10px] uppercase tracking-wider text-ink-tertiary font-medium px-2 pt-1 pb-0.5">
-        Segmentos
+        {t("sidebar.title")}
       </p>
-      {SIDEBAR_TYPES.map((t) => (
-        <DraggableSegmentItem key={t} type={t} onAdd={onAdd} />
+      {SIDEBAR_TYPES.map((segType) => (
+        <DraggableSegmentItem key={segType} type={segType} onAdd={onAdd} />
       ))}
       <p className="text-[10px] text-ink-tertiary px-2 pt-2 leading-relaxed">
-        Arrastrá al documento, o hacé clic para agregar al final.
+        {t("sidebar.dragHint")}
       </p>
     </aside>
   );
 }
 
-function DraggableSegmentItem({ type, onAdd }: { type: SegmentType; onAdd: (t: SegmentType) => void }) {
+function DraggableSegmentItem({ type, onAdd }: { type: SegmentType; onAdd: (segType: SegmentType) => void }) {
+  const { t } = useT();
   const Icon = ICONS[type];
   const id = `new:${type}`;
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id });
@@ -56,7 +59,7 @@ function DraggableSegmentItem({ type, onAdd }: { type: SegmentType; onAdd: (t: S
       <div className="w-7 h-7 rounded-md bg-purple-light text-purple-dark grid place-items-center flex-shrink-0">
         <Icon className="w-3.5 h-3.5" />
       </div>
-      <span className="text-ink-primary font-medium truncate">{SEGMENT_LABELS[type]}</span>
+      <span className="text-ink-primary font-medium truncate">{t(SEGMENT_LABEL_KEYS[type])}</span>
     </button>
   );
 }

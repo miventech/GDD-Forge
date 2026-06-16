@@ -6,7 +6,7 @@
 // Client-side. No React rendering.
 // Images are already data URLs in the segment data, so no inlining needed.
 
-import { HeroData, TextData, ImageData, GridData, CalloutData, CharacterData, EnemyData, BossData, LoopData, DialogueData, NoteData, TensionData, TensionPoint, AccentColor, SEGMENT_LABELS } from "./segment-types";
+import { HeroData, TextData, ImageData, GridData, CalloutData, CharacterData, EnemyData, BossData, LoopData, DialogueData, NoteData, TensionData, TensionPoint, AccentColor } from "./segment-types";
 import { tensionSvg } from "./tension-export";
 import { SegmentType } from "./segment-types";
 import { evalFormula } from "./formula";

@@ -35,19 +35,38 @@ export type Segment = {
   data: any;
 };
 
-export const SEGMENT_LABELS: Record<SegmentType, string> = {
-  hero: "Hero / Portada",
-  text: "Texto",
-  image: "Imagen / Asset",
-  grid: "Grilla de tarjetas",
-  callout: "Callout / Nota",
-  character: "Personaje",
-  enemy: "Enemigo",
-  boss: "Jefe",
-  loop: "Core loop",
-  dialogue: "Diálogo NPC",
-  note: "Lienzo",
-  tension: "Curva de tensión",
+// ponytail: legacy alias. Some views render the key directly instead of
+// translating it; keep both names so the codebase compiles.
+export const SEGMENT_LABEL_KEYS: Record<SegmentType, string> = {
+  hero: "seg.label.hero",
+  text: "seg.label.text",
+  image: "seg.label.image",
+  grid: "seg.label.grid",
+  callout: "seg.label.callout",
+  character: "seg.label.character",
+  enemy: "seg.label.enemy",
+  boss: "seg.label.boss",
+  loop: "seg.label.loop",
+  dialogue: "seg.label.dialogue",
+  note: "seg.label.note",
+  tension: "seg.label.tension",
+};
+
+export const SEGMENT_LABELS: Record<SegmentType, string> = SEGMENT_LABEL_KEYS;
+
+export const SEGMENT_TITLE_KEYS: Record<SegmentType, string> = {
+  hero: "seg.title.hero",
+  text: "seg.title.text",
+  image: "seg.title.image",
+  grid: "seg.title.grid",
+  callout: "seg.title.callout",
+  character: "seg.title.character",
+  enemy: "seg.title.enemy",
+  boss: "seg.title.boss",
+  loop: "seg.title.loop",
+  dialogue: "seg.title.dialogue",
+  note: "seg.title.note",
+  tension: "seg.title.tension",
 };
 
 export const SEGMENT_ICONS: Record<SegmentType, string> = {

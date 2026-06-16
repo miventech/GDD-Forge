@@ -10,6 +10,7 @@ import { evalFormula, FormulaContext } from "@/lib/formula";
 import { NodeCanvas } from "@/components/gdd/NodeCanvas";
 import { ensureLoopPositions, ensureDialoguePositions } from "@/lib/auto-layout";
 import { useAssetUrl } from "@/lib/asset-urls";
+import { useT } from "@/lib/i18n";
 
 // =====================================================
 // HERO
@@ -157,6 +158,7 @@ export function CalloutView({ d }: { d: CalloutData }) {
 export function CharacterView({ d }: { d: CharacterData }) {
   // ponytail: useAssetUrl resolves the in-memory ref to a blob URL on
   // first render. The hook re-renders when the URL lands in the cache.
+  const { t } = useT();
   const avatarUrl = useAssetUrl(d.avatarUrl);
   return (
     <div className="bg-bg-primary border border-line rounded-lg p-4 mb-7 max-w-md">
@@ -170,7 +172,7 @@ export function CharacterView({ d }: { d: CharacterData }) {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-base font-medium text-ink-primary">{d.name || "Sin nombre"}</p>
+          <p className="text-base font-medium text-ink-primary">{d.name || t("seg.view.noName")}</p>
           {d.role ? (
             <p className="text-xs text-purple bg-purple-light inline-block px-2 py-0.5 rounded-full mt-1 font-medium">
               {d.role}
@@ -191,6 +193,7 @@ export function CharacterView({ d }: { d: CharacterData }) {
 // ENEMY
 // =====================================================
 export function EnemyView({ d }: { d: EnemyData }) {
+  const { t } = useT();
   const isElite = d.tier === "elite";
   const hasFormulas = !!(d.formulas?.health || d.formulas?.damage || d.formulas?.speed);
   const [level, setLevel] = useState(1);
@@ -215,7 +218,7 @@ export function EnemyView({ d }: { d: EnemyData }) {
         )}>
           <DynamicIcon name="Bug" size={14} />
         </div>
-        <h3 className="text-base font-medium text-ink-primary">{d.name || "Sin nombre"}</h3>
+        <h3 className="text-base font-medium text-ink-primary">{d.name || t("seg.view.noName")}</h3>
         <span className={cn(
           "text-[10px] px-2 py-0.5 rounded-full font-medium uppercase tracking-wide",
           isElite ? "bg-coral text-white" : "bg-bg-tertiary text-ink-secondary"
@@ -231,22 +234,22 @@ export function EnemyView({ d }: { d: EnemyData }) {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="bg-bg-secondary border border-line rounded-md px-3 py-2">
-          <p className="text-[10px] text-ink-tertiary uppercase tracking-wider">Vida</p>
+          <p className="text-[10px] text-ink-tertiary uppercase tracking-wider">{t("seg.view.life")}</p>
           <p className="text-sm font-semibold text-ink-primary">{hp}</p>
         </div>
         <div className="bg-bg-secondary border border-line rounded-md px-3 py-2">
-          <p className="text-[10px] text-ink-tertiary uppercase tracking-wider">Daño</p>
+          <p className="text-[10px] text-ink-tertiary uppercase tracking-wider">{t("seg.view.damage")}</p>
           <p className="text-sm font-semibold text-ink-primary">{dmg}</p>
         </div>
         <div className="bg-bg-secondary border border-line rounded-md px-3 py-2">
-          <p className="text-[10px] text-ink-tertiary uppercase tracking-wider">Velocidad</p>
+          <p className="text-[10px] text-ink-tertiary uppercase tracking-wider">{t("seg.view.speed")}</p>
           <p className="text-sm font-semibold text-ink-primary">{spd}</p>
         </div>
       </div>
       {hasFormulas ? (
         <div className="bg-bg-tertiary border border-line rounded-md px-3 py-2 mb-3 flex items-center gap-3">
           <label className="text-[10px] text-ink-tertiary uppercase tracking-wider font-semibold">
-            Nivel
+            {t("seg.view.level")}
           </label>
           <input
             type="range"
@@ -263,12 +266,12 @@ export function EnemyView({ d }: { d: EnemyData }) {
       {d.behaviors.length > 0 ? (
         <div>
           <p className="text-[10px] text-ink-tertiary uppercase tracking-wider mb-1.5">
-            Comportamientos
+            {t("seg.view.behaviors")}
           </p>
           <ul className="space-y-1">
             {d.behaviors.map((b, i) => (
               <li key={i} className="text-xs text-ink-secondary">
-                <span className="text-ink-tertiary">Cuando</span>{" "}
+                <span className="text-ink-tertiary">{t("seg.view.when")}</span>{" "}
                 <span className="font-medium text-ink-primary">{b.trigger || "—"}</span>
                 <span className="text-ink-tertiary"> → </span>
                 <span className="text-ink-primary">{b.action || "—"}</span>
@@ -285,6 +288,7 @@ export function EnemyView({ d }: { d: EnemyData }) {
 // BOSS
 // =====================================================
 export function BossView({ d }: { d: BossData }) {
+  const { t } = useT();
   const hasFormulas = !!(d.formulas?.health || d.formulas?.damage || d.formulas?.speed);
   const hasStats = !!(d.stats?.health || d.stats?.damage || d.stats?.speed);
   const [level, setLevel] = useState(1);
@@ -300,7 +304,7 @@ export function BossView({ d }: { d: BossData }) {
         <div className="w-8 h-8 rounded-md bg-red text-white grid place-items-center">
           <DynamicIcon name="Crown" size={16} />
         </div>
-        <h3 className="text-lg font-medium text-ink-primary">{d.name || "Sin nombre"}</h3>
+        <h3 className="text-lg font-medium text-ink-primary">{d.name || t("seg.view.noName")}</h3>
         <span className="text-[10px] px-2 py-0.5 rounded-full bg-red text-white font-medium uppercase tracking-wide">
           Boss
         </span>
@@ -313,23 +317,23 @@ export function BossView({ d }: { d: BossData }) {
       {(hasStats || hasFormulas) ? (
         <div className="bg-bg-primary border border-line rounded-md p-3 mb-3">
           <p className="text-[10px] text-ink-tertiary uppercase tracking-wider font-semibold mb-2">
-            Stats
+            {t("seg.view.stats")}
           </p>
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <p className="text-[10px] text-ink-tertiary">Vida</p>
+              <p className="text-[10px] text-ink-tertiary">{t("seg.view.life")}</p>
               <p className="text-sm font-semibold text-ink-primary">
                 {stat(d.formulas?.health, baseStats.health)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] text-ink-tertiary">Daño</p>
+              <p className="text-[10px] text-ink-tertiary">{t("seg.view.damage")}</p>
               <p className="text-sm font-semibold text-ink-primary">
                 {stat(d.formulas?.damage, baseStats.damage)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] text-ink-tertiary">Velocidad</p>
+              <p className="text-[10px] text-ink-tertiary">{t("seg.view.speed")}</p>
               <p className="text-sm font-semibold text-ink-primary">
                 {stat(d.formulas?.speed, baseStats.speed)}
               </p>
@@ -338,7 +342,7 @@ export function BossView({ d }: { d: BossData }) {
           {hasFormulas ? (
             <div className="flex items-center gap-3 mt-3 pt-3 border-t border-line">
               <label className="text-[10px] text-ink-tertiary uppercase tracking-wider font-semibold">
-                Nivel
+                {t("seg.view.level")}
               </label>
               <input
                 type="range"
@@ -357,7 +361,7 @@ export function BossView({ d }: { d: BossData }) {
       {d.phases.length > 0 ? (
         <div className="mb-3">
           <p className="text-[10px] text-ink-tertiary uppercase tracking-wider mb-2">
-            Fases ({d.phases.length})
+            {t("seg.view.phasesCount", { n: d.phases.length })}
           </p>
           <div className="space-y-2">
             {d.phases.map((p, i) => (
@@ -366,11 +370,11 @@ export function BossView({ d }: { d: BossData }) {
                   <span className="w-5 h-5 rounded-full bg-red text-white text-[10px] font-bold grid place-items-center flex-shrink-0">
                     {i + 1}
                   </span>
-                  <p className="text-sm font-medium text-ink-primary">{p.name || "Sin nombre"}</p>
+                  <p className="text-sm font-medium text-ink-primary">{p.name || t("seg.view.noName")}</p>
                 </div>
                 {p.trigger ? (
                   <p className="text-[11px] text-ink-tertiary mb-1">
-                    <span className="font-medium">Trigger:</span> {p.trigger}
+                    <span className="font-medium">{t("seg.view.trigger")}:</span> {p.trigger}
                   </p>
                 ) : null}
                 {p.description ? (
@@ -398,7 +402,7 @@ export function BossView({ d }: { d: BossData }) {
       {d.weakness ? (
         <div className="bg-teal-light border border-teal rounded-md px-3 py-2">
           <p className="text-[10px] text-teal-dark uppercase tracking-wider font-semibold">
-            Debilidad
+            {t("seg.view.weakness")}
           </p>
           <p className="text-xs text-teal-dark mt-0.5">{d.weakness}</p>
         </div>

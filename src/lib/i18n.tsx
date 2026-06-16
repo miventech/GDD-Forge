@@ -99,12 +99,23 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<Ctx>(() => {
     const active = findLocale(locale);
+    const interpolate = (s: string, vars?: Record<string, string | number>) => {
+      if (!vars) return s;
+      return s.replace(/\{(\w+)\}/g, (_, k) => {
+        const v = vars[k];
+        return v == null ? `{${k}}` : String(v);
+      });
+    };
     return {
       locale,
       locales: LOCALES.map(({ code, name, author }) => ({ code, name, author })),
       setLocale,
-      t: (key: string, fallback?: string) =>
-        active.strings[key] ?? fallback ?? `[${key}]`,
+      t: (key: string, varsOrFallback?: string | Record<string, string | number>, fallback?: string) => {
+        const vars = typeof varsOrFallback === "object" ? varsOrFallback : undefined;
+        const fb = typeof varsOrFallback === "string" ? varsOrFallback : fallback;
+        const raw = active.strings[key] ?? fb ?? `[${key}]`;
+        return interpolate(raw, vars);
+      },
     };
   }, [locale, setLocale]);
 
