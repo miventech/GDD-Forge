@@ -70,7 +70,7 @@ type Ctx = {
   locale: string;
   locales: { code: string; name: string; author: string }[];
   setLocale: (code: string) => void;
-  t: (key: string, fallback?: string) => string;
+  t: (key: string, varsOrFallback?: string | Record<string, string | number>, fallback?: string) => string;
 };
 
 const I18nContext = createContext<Ctx | null>(null);
