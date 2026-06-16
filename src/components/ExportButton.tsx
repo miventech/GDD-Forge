@@ -6,14 +6,17 @@ import { Button } from "@/components/ui/Button";
 import { exportToHtml, exportToMarkdown, exportToPrintableHtml, type ExportSegment, type ExportPayload } from "@/lib/export";
 import { buildExportUrls } from "@/lib/gdd-manifest";
 import { useGdd } from "@/lib/gdd-store";
+import { useT } from "@/lib/i18n";
 
 type Format = "html" | "md" | "pdf";
 
-const FORMATS: { key: Format; label: string; icon: any; mime: string; ext: string }[] = [
-  { key: "html", label: "HTML", icon: FileCode, mime: "text/html", ext: "html" },
-  { key: "md", label: "Markdown", icon: FileText, mime: "text/markdown", ext: "md" },
-  { key: "pdf", label: "PDF (print)", icon: Printer, mime: "text/html", ext: "html" },
-];
+function getFormats(t: (k: string) => string): { key: Format; label: string; icon: any; mime: string; ext: string }[] {
+  return [
+    { key: "html", label: t("export.format.html"), icon: FileCode, mime: "text/html", ext: "html" },
+    { key: "md", label: t("export.format.markdown"), icon: FileText, mime: "text/markdown", ext: "md" },
+    { key: "pdf", label: t("export.format.pdf"), icon: Printer, mime: "text/html", ext: "html" },
+  ];
+}
 
 export function ExportButton(props: {
   title: string;
@@ -22,6 +25,8 @@ export function ExportButton(props: {
   version: string;
   segments: ExportSegment[];
 }) {
+  const { t } = useT();
+  const FORMATS = getFormats(t);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<Format | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
@@ -66,7 +71,7 @@ export function ExportButton(props: {
       a.click();
       URL.revokeObjectURL(url);
     } catch (e: any) {
-      setExportError(e?.message ?? "No se pudo exportar el archivo");
+      setExportError(e?.message ?? t("export.errorDefault"));
     } finally {
       setBusy(null);
       setOpen(false);
@@ -76,7 +81,7 @@ export function ExportButton(props: {
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen((o) => !o)}>
-        <Download className="w-3.5 h-3.5" /> Exportar
+        <Download className="w-3.5 h-3.5" /> {t("export.title")}
       </Button>
       {open ? createPortal(
         <div
@@ -87,9 +92,9 @@ export function ExportButton(props: {
             className="w-full max-w-sm bg-bg-primary rounded-lg border border-line p-5 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-base font-medium text-ink-primary mb-1">Exportar GDD</h2>
+            <h2 className="text-base font-medium text-ink-primary mb-1">{t("export.dialog.title")}</h2>
             <p className="text-xs text-ink-tertiary mb-4">
-              El documento se genera desde los segmentos actuales.
+              {t("export.dialog.body")}
             </p>
             <div className="space-y-2">
               {FORMATS.map((f) => {
@@ -116,7 +121,7 @@ export function ExportButton(props: {
               })}
             </div>
             <p className="mt-3 text-[10px] text-ink-tertiary text-center">
-              PDF: se abre el HTML en una pestaña nueva; usá Imprimir → Guardar como PDF.
+              {t("export.dialog.pdfHint")}
             </p>
           </div>
         </div>,

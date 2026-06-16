@@ -4,7 +4,8 @@ import { Upload, FileJson, FileCode, AlertCircle, CheckCircle2, Download } from 
 import { Button } from "@/components/ui/Button";
 import { parseSegmentsJson, ImportItem } from "@/lib/import-segments";
 import { parseHtmlToSegments } from "@/lib/import-html";
-import { SEGMENT_LABELS, SegmentType } from "@/lib/segment-types";
+import { getSegmentLabels, SegmentType } from "@/lib/segment-types";
+import { useT } from "@/lib/i18n";
 
 const EXAMPLE = `{
   "segments": [
@@ -23,6 +24,8 @@ export function ImportSegmentsButton({
 }: {
   onImport: (segments: ImportItem[]) => void;
 }) {
+  const { t } = useT();
+  const SEGMENT_LABELS = getSegmentLabels(t);
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState<{ segments: ImportItem[]; errors: string[] } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -40,7 +43,7 @@ export function ImportSegmentsButton({
   }
 
   function onPaste() {
-    const text = window.prompt("Pegá el JSON o HTML de segmentos:");
+    const text = window.prompt(t("import.promptPaste"));
     if (!text) return;
     if (text.trim().startsWith("<")) {
       setPreview(parseHtmlToSegments(text));
@@ -70,7 +73,7 @@ export function ImportSegmentsButton({
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-        <Upload className="w-3.5 h-3.5" /> Importar
+        <Upload className="w-3.5 h-3.5" /> {t("import.title")}
       </Button>
 
       {open ? (
@@ -90,10 +93,10 @@ export function ImportSegmentsButton({
               <div className="w-9 h-9 rounded-md bg-teal-light text-teal-dark grid place-items-center">
                 <FileJson className="w-4 h-4" />
               </div>
-              <h2 className="text-base font-medium text-ink-primary">Importar segmentos</h2>
+              <h2 className="text-base font-medium text-ink-primary">{t("import.dialog.title")}</h2>
             </div>
             <p className="text-xs text-ink-tertiary mb-4">
-              Cargá un archivo .json o pegá el contenido. Los items inválidos se reportan; los válidos se importan igual.
+              {t("import.dialog.body")}
             </p>
 
             <div className="space-y-3">
@@ -107,13 +110,13 @@ export function ImportSegmentsButton({
                 />
               </label>
               <div className="flex items-center gap-2 text-xs text-ink-tertiary">
-                <span>o</span>
+                <span>{t("import.dialog.or")}</span>
                 <button
                   type="button"
                   onClick={onPaste}
                   className="text-purple hover:underline"
                 >
-                  pegar JSON
+                  {t("import.dialog.paste")}
                 </button>
                 <span>·</span>
                 <button
@@ -121,7 +124,7 @@ export function ImportSegmentsButton({
                   onClick={downloadExample}
                   className="text-purple hover:underline inline-flex items-center gap-1"
                 >
-                  <Download className="w-3 h-3" /> descargar ejemplo
+                  <Download className="w-3 h-3" /> {t("import.dialog.downloadExample")}
                 </button>
               </div>
             </div>
@@ -134,7 +137,7 @@ export function ImportSegmentsButton({
                       <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium">
-                          {preview.segments.length} segmentos listos
+                          {t("import.dialog.ready", { n: preview.segments.length })}
                         </p>
                         <div className="flex flex-wrap gap-1 mt-1.5">
                           {preview.segments.map((s, i) => (
@@ -156,14 +159,16 @@ export function ImportSegmentsButton({
                       <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium">
-                          {preview.errors.length} {preview.errors.length === 1 ? "advertencia" : "advertencias"}
+                          {preview.errors.length === 1
+                            ? t("import.dialog.warningOne")
+                            : t("import.dialog.warningMany", { n: preview.errors.length })}
                         </p>
                         <ul className="text-xs mt-1 list-disc list-inside space-y-0.5">
                           {preview.errors.slice(0, 6).map((e, i) => (
                             <li key={i}>{e}</li>
                           ))}
                           {preview.errors.length > 6 ? (
-                            <li>…y {preview.errors.length - 6} más</li>
+                            <li>{t("import.dialog.moreWarnings", { n: preview.errors.length - 6 })}</li>
                           ) : null}
                         </ul>
                       </div>
@@ -182,13 +187,13 @@ export function ImportSegmentsButton({
                   if (fileRef.current) fileRef.current.value = "";
                 }}
               >
-                Cancelar
+                {t("common.cancel")}
               </Button>
               <Button
                 onClick={onConfirm}
                 disabled={!preview || preview.segments.length === 0}
               >
-                Agregar {preview?.segments.length ?? 0} segmentos
+                {t("import.dialog.cta", { n: preview?.segments.length ?? 0 })}
               </Button>
             </div>
           </div>

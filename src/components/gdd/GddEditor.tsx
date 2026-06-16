@@ -22,7 +22,7 @@ import {
   useSortable, verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { SEGMENT_ICONS, SEGMENT_LABELS, SEGMENT_TYPES, SegmentType, defaultSegmentData, ACCENT_COLORS } from "@/lib/segment-types";
+import { SEGMENT_ICONS, getSegmentLabels, SEGMENT_TYPES, SegmentType, defaultSegmentData, ACCENT_COLORS } from "@/lib/segment-types";
 import {
   HeroView, TextView, ImageView, GridView, CalloutView,
   CharacterView, EnemyView, BossView, LoopView, DialogueView, NoteView,
@@ -36,8 +36,11 @@ import { ExportButton } from "@/components/ExportButton";
 import { useGdd, actions, store } from "@/lib/gdd-store";
 import type { Segment, Project } from "@/lib/gdd-file";
 import { newId } from "@/lib/gdd-file";
+import { useT } from "@/lib/i18n";
 
 export function GddEditor() {
+  const { t } = useT();
+  const SEGMENT_LABELS = getSegmentLabels(t);
   const file = useGdd();
   const [mode, setMode] = useState<"view" | "edit">("edit");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -189,7 +192,7 @@ export function GddEditor() {
                     : "text-ink-tertiary hover:text-ink-secondary"
                 )}
               >
-                <Eye className="w-3.5 h-3.5" /> Ver
+                <Eye className="w-3.5 h-3.5" /> {t("editor.mode.view")}
               </button>
               <button
                 onClick={() => setMode("edit")}
@@ -200,10 +203,10 @@ export function GddEditor() {
                     : "text-ink-tertiary hover:text-ink-secondary"
                 )}
               >
-                <Edit3 className="w-3.5 h-3.5" /> Editar
+                <Edit3 className="w-3.5 h-3.5" /> {t("editor.mode.edit")}
               </button>
             </div>
-            <span className="text-[11px] text-ink-tertiary">auto-guardado</span>
+            <span className="text-[11px] text-ink-tertiary">{t("editor.autoSaved")}</span>
           </div>
           <div className="flex items-center gap-2">
             {mode === "edit" ? <ImportSegmentsButton onImport={importSegments} /> : null}
@@ -223,7 +226,7 @@ export function GddEditor() {
             className="w-full mb-4 p-2.5 rounded-md border border-dashed border-line-strong text-xs text-ink-secondary hover:bg-bg-secondary hover:text-ink-primary transition-colors flex items-center justify-center gap-1.5"
           >
             <Edit3 className="w-3.5 h-3.5" />
-            Estás en modo lectura. Hacé clic acá o arriba en <strong>Editar</strong> para modificar segmentos.
+            {t("editor.viewModeHint", { edit: t("editor.mode.edit") })}
           </button>
         ) : null}
 
@@ -253,7 +256,7 @@ export function GddEditor() {
               <EmptyState onAdd={(t) => addSegment(t)} />
             ) : visibleSegments.length === 0 ? (
               <div className="text-center text-sm text-ink-tertiary border border-dashed border-line rounded-md p-8">
-                Nada matchea &quot;{query}&quot;. Probá con menos palabras o cambiá el filtro.
+                {t("editor.search.noMatch", { query: query })}
               </div>
             ) : (
               <SortableContext
@@ -295,7 +298,7 @@ export function GddEditor() {
                 <Plus className="w-3.5 h-3.5" />
               </div>
               <span className="text-ink-primary font-medium">
-                {SEGMENT_LABELS[String(activeDragId).slice(4) as SegmentType] ?? "Segmento"}
+                {SEGMENT_LABELS[String(activeDragId).slice(4) as SegmentType] ?? t("editor.segmentDefault")}
               </span>
             </div>
           ) : null}
@@ -352,6 +355,8 @@ function SortableSegmentBlock({
   onMoveDown: () => void;
   onRemove: () => void;
 }) {
+  const { t } = useT();
+  const SEGMENT_LABELS = getSegmentLabels(t);
   const {
     attributes, listeners, setNodeRef, transform, transition, isDragging,
   } = useSortable({ id: segment.id });
@@ -391,7 +396,7 @@ function SortableSegmentBlock({
             {...attributes}
             {...listeners}
             className="mt-2 p-1 text-ink-tertiary cursor-grab active:cursor-grabbing touch-none"
-            title="Arrastrá para reordenar"
+            title={t("editor.dragToReorder")}
           >
             ⠿
           </div>
@@ -407,16 +412,16 @@ function SortableSegmentBlock({
             >
               <Icon className="w-3.5 h-3.5" />
               <span className="flex-1 text-left">
-                {sectionNum} · {SEGMENT_LABELS[segment.type]}
+                {sectionNum} · {(() => { const v = SEGMENT_LABELS[segment.type]; if (v === "seg.label.character" || (v && v.startsWith("seg."))) console.warn("DEBUG label", segment.type, "=", JSON.stringify(v), "all=", SEGMENT_LABELS); return v; })()}
               </span>
-              <span className="text-ink-tertiary text-[10px]">{isOpen ? "cerrar" : "editar"}</span>
+              <span className="text-ink-tertiary text-[10px]">{isOpen ? t("common.close") : t("common.edit")}</span>
             </button>
             {isOpen ? (
               <div className="mt-2 p-3 bg-bg-primary border border-line rounded-md">
                 <EditorRouter type={segment.type} data={segment.data} onChange={onDataChange} />
                 <div className="mt-3 pt-3 border-t border-line">
                   <label className="text-[10px] uppercase tracking-wider text-ink-tertiary font-semibold mb-1.5 block">
-                    Tags
+                    {t("tags.label")}
                   </label>
                   <TagEditor
                     tags={getSegmentTagArray(segment.type, segment.data)}
@@ -430,7 +435,7 @@ function SortableSegmentBlock({
                     onClick={onRemove}
                     className="text-red hover:bg-red-light"
                   >
-                    <Trash2 className="w-3.5 h-3.5" /> Eliminar segmento
+                    <Trash2 className="w-3.5 h-3.5" /> {t("editor.deleteSegment")}
                   </Button>
                 </div>
               </div>
@@ -447,10 +452,11 @@ function SortableSegmentBlock({
 }
 
 function DisplayRouter({ segment, sectionNum, allSegments }: { segment: Segment; sectionNum: string; allSegments: Segment[] }) {
+  const { t } = useT();
   if (segment.type === "hero") {
     return <HeroView d={segment.data} />;
   }
-  const heading = sectionHeading(segment);
+  const heading = sectionHeading(segment, t);
   return (
     <section id={heading.id} className="mb-12 scroll-mt-20">
       <header className="flex items-baseline gap-3 mb-4 pb-3 border-b border-line">
@@ -498,20 +504,20 @@ function EditorRouter({ type, data, onChange }: { type: SegmentType; data: any; 
   }
 }
 
-function sectionHeading(segment: Segment) {
+function sectionHeading(segment: Segment, t: (k: string) => string) {
   switch (segment.type) {
-    case "text": return { id: slugify(segment.data.heading || "section"), title: segment.data.heading || "Sección" };
-    case "image": return { id: slugify(segment.data.caption || "imagen"), title: segment.data.caption || "Imagen" };
-    case "grid": return { id: slugify(segment.data.items?.[0]?.title || "grilla"), title: segment.data.items?.[0]?.title || "Grilla" };
-    case "callout": return { id: slugify(segment.data.title || "nota"), title: segment.data.title || "Nota" };
-    case "character": return { id: slugify(segment.data.name || "personaje"), title: segment.data.name || "Personaje" };
-    case "enemy": return { id: slugify(segment.data.name || "enemigo"), title: segment.data.name || "Enemigo" };
-    case "boss": return { id: slugify(segment.data.name || "jefe"), title: segment.data.name || "Jefe" };
-    case "loop": return { id: slugify(segment.data.name || "loop"), title: segment.data.name || "Core loop" };
-    case "dialogue": return { id: slugify(segment.data.name || "dialogo"), title: segment.data.name || "Diálogo" };
-    case "note": return { id: slugify(segment.data.title || "lienzo"), title: segment.data.title || "Lienzo" };
-    case "tension": return { id: slugify(segment.data.title || "tension"), title: segment.data.title || "Curva de tensión" };
-    default: return { id: "section", title: "Sección" };
+    case "text": return { id: slugify(segment.data.heading || "section"), title: segment.data.heading || t("seg.title.default") };
+    case "image": return { id: slugify(segment.data.caption || "imagen"), title: segment.data.caption || t("seg.title.image") };
+    case "grid": return { id: slugify(segment.data.items?.[0]?.title || "grilla"), title: segment.data.items?.[0]?.title || t("seg.title.grid") };
+    case "callout": return { id: slugify(segment.data.title || "nota"), title: segment.data.title || t("seg.title.callout") };
+    case "character": return { id: slugify(segment.data.name || "personaje"), title: segment.data.name || t("seg.title.character") };
+    case "enemy": return { id: slugify(segment.data.name || "enemigo"), title: segment.data.name || t("seg.title.enemy") };
+    case "boss": return { id: slugify(segment.data.name || "jefe"), title: segment.data.name || t("seg.title.boss") };
+    case "loop": return { id: slugify(segment.data.name || "loop"), title: segment.data.name || t("seg.title.loop") };
+    case "dialogue": return { id: slugify(segment.data.name || "dialogo"), title: segment.data.name || t("seg.title.dialogue") };
+    case "note": return { id: slugify(segment.data.title || "lienzo"), title: segment.data.title || t("seg.title.note") };
+    case "tension": return { id: slugify(segment.data.title || "tension"), title: segment.data.title || t("seg.title.tension") };
+    default: return { id: "section", title: t("seg.title.default") };
   }
 }
 
@@ -520,6 +526,7 @@ function slugify(s: string) {
 }
 
 function ProjectMetaView({ project }: { project: Project }) {
+  const { t } = useT();
   return (
     <header className="border-b border-line pb-8 mb-10">
       {project.eyebrow ? (
@@ -550,7 +557,7 @@ function ProjectMetaView({ project }: { project: Project }) {
             project.status === "draft" && "bg-bg-secondary text-ink-secondary"
           )}
         >
-          {project.status === "completed" ? "Completado" : project.status === "in-progress" ? "En progreso" : "Borrador"}
+          {project.status === "completed" ? t("editor.project.status.completed") : project.status === "in-progress" ? t("editor.project.status.inProgress") : t("editor.project.status.draft")}
         </span>
       </div>
     </header>
@@ -558,43 +565,44 @@ function ProjectMetaView({ project }: { project: Project }) {
 }
 
 function ProjectMetaEditor({ project, onChange }: { project: Project; onChange: (p: Partial<Project>) => void }) {
+  const { t } = useT();
   return (
     <header className="border border-line rounded-lg bg-bg-primary p-4 mb-8 space-y-3">
-      <Field label="Eyebrow">
+      <Field label={t("editor.project.eyebrow")}>
         <Input
           value={project.eyebrow || ""}
           onChange={(e) => onChange({ eyebrow: e.target.value })}
-          placeholder="Game Design Document · v0.1 · Draft"
+          placeholder={t("editor.project.eyebrowPlaceholder")}
         />
       </Field>
-      <Field label="Título">
+      <Field label={t("editor.project.title")}>
         <Input
           value={project.title}
           onChange={(e) => onChange({ title: e.target.value })}
         />
       </Field>
-      <Field label="Subtítulo">
+      <Field label={t("editor.project.subtitle")}>
         <Textarea
           value={project.subtitle || ""}
           onChange={(e) => onChange({ subtitle: e.target.value })}
         />
       </Field>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Versión">
+        <Field label={t("editor.project.version")}>
           <Input
             value={project.version}
             onChange={(e) => onChange({ version: e.target.value })}
           />
         </Field>
-        <Field label="Estado">
+        <Field label={t("editor.project.status")}>
           <select value={project.status} onChange={(e) => onChange({ status: e.target.value as any })}>
-            <option value="draft">Borrador</option>
-            <option value="in-progress">En progreso</option>
-            <option value="completed">Completado</option>
+            <option value="draft">{t("editor.project.status.draft")}</option>
+            <option value="in-progress">{t("editor.project.status.inProgress")}</option>
+            <option value="completed">{t("editor.project.status.completed")}</option>
           </select>
         </Field>
       </div>
-      <Field label="Color de acento">
+      <Field label={t("editor.project.accent")}>
         <div className="flex gap-2">
           {ACCENT_COLORS.map((c) => (
             <button
@@ -631,6 +639,8 @@ function SearchBar({
   visible: number;
   total: number;
 }) {
+  const { t } = useT();
+  const SEGMENT_LABELS = getSegmentLabels(t);
   const hasFilter = query.trim() !== "" || typeFilter !== "all";
   return (
     <div className="mb-4 p-2.5 rounded-lg border border-line bg-bg-primary flex flex-wrap items-center gap-2">
@@ -639,7 +649,7 @@ function SearchBar({
         <input
           value={query}
           onChange={(e) => onQuery(e.target.value)}
-          placeholder="Buscar por título, body, tag…"
+          placeholder={t("editor.search.placeholder")}
           className="w-full pl-8 pr-7 h-8 text-xs text-ink-primary placeholder:text-ink-tertiary focus:outline-none"
         />
         {query ? (
@@ -647,7 +657,7 @@ function SearchBar({
             type="button"
             onClick={() => onQuery("")}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-ink-tertiary hover:text-ink-primary"
-            title="Limpiar"
+            title={t("editor.search.clear")}
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -661,7 +671,7 @@ function SearchBar({
           className="text-xs text-ink-primary pl-2 pr-7 cursor-pointer"
           style={{ width: "auto", minWidth: "150px" }}
         >
-          <option value="all">Todos los tipos</option>
+          <option value="all">{t("editor.search.allTypes")}</option>
           {SEGMENT_TYPES.map((t) => (
             <option key={t} value={t}>{SEGMENT_LABELS[t]}</option>
           ))}
@@ -669,7 +679,7 @@ function SearchBar({
       </div>
       {allTags.length > 0 ? (
         <div className="flex flex-wrap items-center gap-1 max-w-full">
-          <span className="text-[9px] text-ink-tertiary uppercase tracking-wider">Tags:</span>
+          <span className="text-[9px] text-ink-tertiary uppercase tracking-wider">{t("editor.search.tagsLabel")}</span>
           {allTags.slice(0, 8).map((t) => (
             <button
               key={t}
@@ -686,7 +696,7 @@ function SearchBar({
             </button>
           ))}
           {allTags.length > 8 ? (
-            <span className="text-[10px] text-ink-tertiary">+{allTags.length - 8} más</span>
+            <span className="text-[10px] text-ink-tertiary">{t("editor.search.moreTags", { n: allTags.length - 8 })}</span>
           ) : null}
         </div>
       ) : null}
@@ -700,19 +710,20 @@ function SearchBar({
 }
 
 function EmptyState({ onAdd }: { onAdd: (t: SegmentType) => void }) {
+  const { t } = useT();
   return (
     <div className="text-center py-12 border border-dashed border-line-strong rounded-lg">
       <div className="w-12 h-12 rounded-lg bg-purple-light text-purple-dark grid place-items-center mx-auto mb-3">
         <Plus className="w-6 h-6" />
       </div>
-      <h3 className="text-sm font-medium text-ink-primary mb-1">Empezá tu GDD</h3>
-      <p className="text-xs text-ink-secondary mb-4">Arrastrá un tipo de segmento desde la barra lateral, o usá los atajos de abajo.</p>
+      <h3 className="text-sm font-medium text-ink-primary mb-1">{t("editor.empty.title")}</h3>
+      <p className="text-xs text-ink-secondary mb-4">{t("editor.empty.body")}</p>
       <div className="flex flex-wrap justify-center gap-2">
         <Button onClick={() => onAdd("hero")} size="sm">
-          <Sparkles className="w-3.5 h-3.5" /> Empezar con Hero
+          <Sparkles className="w-3.5 h-3.5" /> {t("editor.empty.ctaHero")}
         </Button>
         <Button variant="outline" onClick={() => onAdd("text")} size="sm">
-          <Plus className="w-3.5 h-3.5" /> Bloque de texto
+          <Plus className="w-3.5 h-3.5" /> {t("editor.empty.ctaText")}
         </Button>
       </div>
     </div>

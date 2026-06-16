@@ -15,6 +15,9 @@
     "common.author": "Translation",
     "common.language": "Language",
 
+    "meta.title": "GDD-Forge",
+    "meta.description": "Design, organize and maintain your Game Design Documents in one place.",
+
     "nav.recent": "Recent",
     "nav.templates": "Start from a template",
 
@@ -147,6 +150,10 @@
 
     "features.title": "Features and dependencies",
     "features.subtitle": "Map your game's features, their dependencies, and the segments that implement them.",
+    "features.counts.planned": "{n} planned",
+    "features.counts.inProgress": "{n} in development",
+    "features.counts.done": "{n} done",
+    "features.counts.cut": "{n} cut",
     "features.new": "New feature",
     "features.editTitle": "Edit feature",
     "features.newTitle": "New feature",
@@ -179,6 +186,9 @@
     "export.dialog.body": "The document is generated from the current segments.",
     "export.dialog.pdfHint": "PDF: opens the HTML in a new tab; use Print → Save as PDF.",
     "export.errorDefault": "Could not export the file",
+    "export.format.html": "HTML",
+    "export.format.markdown": "Markdown",
+    "export.format.pdf": "PDF (print)",
 
     "import.title": "Import",
     "import.dialog.title": "Import segments",
@@ -227,6 +237,7 @@
     "tension.addFirst": "Click on the chart to add your first beat",
     "tension.afterAdd": "You can drag each beat to adjust the curve",
     "tension.hint": "click: add · drag: move",
+    "tension.beatDefault": "Beat {n}",
     "tension.colors": "Chart colors",
     "tension.line": "Line",
     "tension.fill": "Fill",
@@ -413,6 +424,10 @@
     "seg.boss.formulaRemove": "Remove formula",
     "seg.boss.formulaPlaceholder": "base + 5 * (level - 1)",
     "seg.boss.formulaPreset": "Preset…",
+    "seg.boss.formulaLevelLabel": "L{n}:",
+    "seg.boss.phaseNamePlaceholder": "Phase 1",
+    "seg.boss.phaseAttacksPlaceholder": "Slash\nStomp\nSweep",
+    "seg.boss.phaseNameDefault": "Phase {n}",
 
     "seg.dialogue.npc": "NPC",
     "seg.dialogue.npcPlaceholder": "Old hermit",
@@ -450,6 +465,7 @@
     "seg.loop.descriptionPlaceholder": "What this loop represents and why it matters.",
     "seg.loop.diagram": "Diagram ({n} steps)",
     "seg.loop.addStep": "Step",
+    "seg.loop.nodeLabelDefault": "Step {n}",
     "seg.loop.editing": "Editing {id}",
     "seg.loop.stepName": "Step name",
     "seg.loop.stepDescription": "What the player does, feels, decides…",

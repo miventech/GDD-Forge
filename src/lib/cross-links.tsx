@@ -15,26 +15,30 @@ function slug(s: string): string {
   return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "section";
 }
 
-const TYPE_ICON: Record<string, string> = {
-  hero: "Hero",
-  text: "Texto",
-  image: "Imagen",
-  grid: "Grilla",
-  callout: "Callout",
-  character: "Personaje",
-  enemy: "Enemigo",
-  boss: "Jefe",
-  loop: "Loop",
-  dialogue: "Diálogo",
-  note: "Lienzo",
-  tension: "Tensión",
-};
+function getTypeIcon(t: (k: string) => string): Record<string, string> {
+  return {
+    hero: t("seg.title.hero"),
+    text: t("seg.title.text"),
+    image: t("seg.title.image"),
+    grid: t("seg.title.grid"),
+    callout: t("seg.title.callout"),
+    character: t("seg.title.character"),
+    enemy: t("seg.title.enemy"),
+    boss: t("seg.title.boss"),
+    loop: t("seg.title.loop"),
+    dialogue: t("seg.title.dialogue"),
+    note: t("seg.title.note"),
+    tension: t("seg.title.tension"),
+  };
+}
 
 export function renderTextWithLinks(
   body: string,
-  allSegments: SegmentForLinks[]
+  allSegments: SegmentForLinks[],
+  t: (k: string, vars?: Record<string, string | number>, fb?: string) => string
 ): React.ReactNode {
   if (!body) return null;
+  const TYPE_ICON = getTypeIcon(t);
   const parts = body.split(RE);
   return parts.map((part, i) => {
     const m = part.match(EXACT);
@@ -50,7 +54,7 @@ export function renderTextWithLinks(
         <span
           key={i}
           className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-red-light text-red-dark text-[11px] font-medium align-baseline"
-          title={`No se encontró: ${query}`}
+          title={t("link.notFound", { query })}
         >
           <AlertCircle className="w-2.5 h-2.5" />
           {query}
@@ -64,7 +68,7 @@ export function renderTextWithLinks(
         key={i}
         href={href}
         className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-light text-purple-dark text-[11px] font-medium hover:bg-purple hover:text-white transition-colors align-baseline no-underline"
-        title={`${TYPE_ICON[target.type] ?? target.type}: ${title}`}
+        title={t("link.target", { icon: TYPE_ICON[target.type] ?? target.type, title })}
       >
         <Link2 className="w-2.5 h-2.5" />
         {title}

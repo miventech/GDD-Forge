@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 // Compact, keyboard-friendly tag editor. Used inside any segment editor
 // to let the user assign search/filter tags.
@@ -18,6 +19,7 @@ export function TagEditor({
   className?: string;
 }) {
   const [draft, setDraft] = useState("");
+  const { t } = useT();
 
   function add(raw: string) {
     const t = raw.trim().toLowerCase();
@@ -49,7 +51,7 @@ export function TagEditor({
               type="button"
               onClick={() => remove(t)}
               className="hover:text-red"
-              title={`Quitar #${t}`}
+              title={t("tags.removeTag", { tag: t })}
             >
               <X className="w-2.5 h-2.5" />
             </button>
@@ -67,13 +69,13 @@ export function TagEditor({
               remove(tags[tags.length - 1]);
             }
           }}
-          placeholder={tags.length ? "+ tag" : "Tags (Enter para agregar)"}
+          placeholder={tags.length ? t("tags.addTag") : t("tags.addTagHint")}
           className="text-[10px] bg-transparent border-none outline-none placeholder:text-ink-tertiary min-w-[100px] flex-1"
         />
       </div>
       {showSuggest ? (
         <div className="flex flex-wrap items-center gap-1">
-          <span className="text-[9px] text-ink-tertiary uppercase tracking-wider">Sugeridos:</span>
+          <span className="text-[9px] text-ink-tertiary uppercase tracking-wider">{t("tags.suggested")}</span>
           {available.slice(0, 6).map((s) => (
             <button
               key={s}

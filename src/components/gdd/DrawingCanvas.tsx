@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Eraser, Pen, Highlighter, Trash2 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 // ponytail: minimal HTML canvas drawing tool. 3 brushes (pen, marker,
 // eraser), 6 colors, 3 sizes, clear. State lives in the canvas itself;
@@ -42,6 +43,7 @@ export function DrawingCanvas({
   const [tool, setTool] = useState<Tool>("pen");
   const [color, setColor] = useState(COLORS[0].value);
   const [size, setSize] = useState(3);
+  const { t } = useT();
 
   // Load saved drawing on mount (only once).
   useEffect(() => {
@@ -140,13 +142,13 @@ export function DrawingCanvas({
   return (
     <div className={cn("space-y-1.5", className)}>
       <div className="flex flex-wrap items-center gap-1 p-1.5 bg-bg-secondary border border-line rounded-md">
-        <ToolButton active={tool === "pen"} onClick={() => setTool("pen")} title="Lápiz">
+        <ToolButton active={tool === "pen"} onClick={() => setTool("pen")} title={t("draw.pen")}>
           <Pen className="w-3.5 h-3.5" />
         </ToolButton>
-        <ToolButton active={tool === "marker"} onClick={() => setTool("marker")} title="Marcador">
+        <ToolButton active={tool === "marker"} onClick={() => setTool("marker")} title={t("draw.marker")}>
           <Highlighter className="w-3.5 h-3.5" />
         </ToolButton>
-        <ToolButton active={tool === "eraser"} onClick={() => setTool("eraser")} title="Borrar">
+        <ToolButton active={tool === "eraser"} onClick={() => setTool("eraser")} title={t("draw.eraser")}>
           <Eraser className="w-3.5 h-3.5" />
         </ToolButton>
         <div className="w-px h-5 bg-line mx-0.5" />
@@ -171,7 +173,7 @@ export function DrawingCanvas({
             key={s}
             type="button"
             onClick={() => setSize(s)}
-            title={`Tamaño ${s}`}
+            title={t("draw.size", { n: s })}
             className={cn(
               "rounded-full bg-ink-primary",
               size === s && "ring-2 ring-teal ring-offset-1"
@@ -184,9 +186,9 @@ export function DrawingCanvas({
           type="button"
           onClick={clear}
           className="inline-flex items-center gap-1 text-[10px] text-ink-tertiary hover:text-red px-1.5 py-1"
-          title="Limpiar todo"
+          title={t("draw.clearAll")}
         >
-          <Trash2 className="w-3 h-3" /> Limpiar
+          <Trash2 className="w-3 h-3" /> {t("draw.clear")}
         </button>
       </div>
       <canvas

@@ -15,6 +15,9 @@
     "common.author": "Tradução",
     "common.language": "Idioma",
 
+    "meta.title": "GDD-Forge",
+    "meta.description": "Projete, organize e mantenha seus Game Design Documents em um só lugar.",
+
     "nav.recent": "Recentes",
     "nav.templates": "Comece com um template",
 
@@ -147,6 +150,10 @@
 
     "features.title": "Features e dependências",
     "features.subtitle": "Mapeie as features do jogo, suas dependências e os segmentos que as implementam.",
+    "features.counts.planned": "{n} planejadas",
+    "features.counts.inProgress": "{n} em desenvolvimento",
+    "features.counts.done": "{n} concluídas",
+    "features.counts.cut": "{n} cortadas",
     "features.new": "Nova feature",
     "features.editTitle": "Editar feature",
     "features.newTitle": "Nova feature",
@@ -179,6 +186,9 @@
     "export.dialog.body": "O documento é gerado a partir dos segmentos atuais.",
     "export.dialog.pdfHint": "PDF: abre o HTML em uma nova aba; use Imprimir → Salvar como PDF.",
     "export.errorDefault": "Não foi possível exportar o arquivo",
+    "export.format.html": "HTML",
+    "export.format.markdown": "Markdown",
+    "export.format.pdf": "PDF (imprimir)",
 
     "import.title": "Importar",
     "import.dialog.title": "Importar segmentos",
@@ -227,6 +237,7 @@
     "tension.addFirst": "Clique no gráfico para adicionar seu primeiro beat",
     "tension.afterAdd": "Depois você pode arrastar cada beat para ajustar a curva",
     "tension.hint": "clique: adicionar · arrastar: mover",
+    "tension.beatDefault": "Beat {n}",
     "tension.colors": "Cores do gráfico",
     "tension.line": "Linha",
     "tension.fill": "Preenchimento",
@@ -413,6 +424,10 @@
     "seg.boss.formulaRemove": "Remover fórmula",
     "seg.boss.formulaPlaceholder": "base + 5 * (level - 1)",
     "seg.boss.formulaPreset": "Preset…",
+    "seg.boss.formulaLevelLabel": "L{n}:",
+    "seg.boss.phaseNamePlaceholder": "Fase 1",
+    "seg.boss.phaseAttacksPlaceholder": "Slash\nStomp\nSweep",
+    "seg.boss.phaseNameDefault": "Fase {n}",
 
     "seg.dialogue.npc": "NPC",
     "seg.dialogue.npcPlaceholder": "Velho eremita",
@@ -450,6 +465,7 @@
     "seg.loop.descriptionPlaceholder": "O que este loop representa e por que importa.",
     "seg.loop.diagram": "Diagrama ({n} passos)",
     "seg.loop.addStep": "Passo",
+    "seg.loop.nodeLabelDefault": "Passo {n}",
     "seg.loop.editing": "Editando {id}",
     "seg.loop.stepName": "Nome do passo",
     "seg.loop.stepDescription": "O que o jogador faz, sente, decide…",

@@ -9,21 +9,27 @@ import { useTaskGroups, actions } from "@/lib/gdd-store";
 import type { TaskGroup, Task, TaskStatus, TaskPriority } from "@/lib/gdd-file";
 import { newId } from "@/lib/gdd-file";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
-const STATUS_META: Record<TaskStatus, { label: string; Icon: any; color: string }> = {
-  todo: { label: "Pendiente", Icon: Circle, color: "ink-tertiary" },
-  "in-progress": { label: "En progreso", Icon: Clock, color: "amber-dark" },
-  done: { label: "Hecho", Icon: CheckCircle2, color: "teal-dark" },
-  blocked: { label: "Bloqueado", Icon: Ban, color: "red" },
-};
+function getStatusMeta(t: (k: string) => string): Record<TaskStatus, { label: string; Icon: any; color: string }> {
+  return {
+    todo: { label: t("checklist.status.todo"), Icon: Circle, color: "ink-tertiary" },
+    "in-progress": { label: t("checklist.status.inProgress"), Icon: Clock, color: "amber-dark" },
+    done: { label: t("checklist.status.done"), Icon: CheckCircle2, color: "teal-dark" },
+    blocked: { label: t("checklist.status.blocked"), Icon: Ban, color: "red" },
+  };
+}
 
-const PRIORITY_META: Record<TaskPriority, { label: string; color: string }> = {
-  low: { label: "Baja", color: "ink-tertiary" },
-  medium: { label: "Media", color: "amber" },
-  high: { label: "Alta", color: "red" },
-};
+function getPriorityMeta(t: (k: string) => string): Record<TaskPriority, { label: string; color: string }> {
+  return {
+    low: { label: t("checklist.priority.low"), color: "ink-tertiary" },
+    medium: { label: t("checklist.priority.medium"), color: "amber" },
+    high: { label: t("checklist.priority.high"), color: "red" },
+  };
+}
 
 export function ChecklistClient() {
+  const { t } = useT();
   const groups = useTaskGroups();
   const [addingGroup, setAddingGroup] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +56,7 @@ export function ChecklistClient() {
   }
 
   function deleteGroup(groupId: string) {
-    if (!confirm("¿Eliminar este grupo y todas sus tareas?")) return;
+    if (!confirm(t("checklist.deleteGroupConfirm"))) return;
     patchGroups(groups.filter((g) => g.id !== groupId));
   }
 
@@ -76,7 +82,7 @@ export function ChecklistClient() {
       } else {
         patchGroups([
           ...groups,
-          { id: "orphan", name: "Sin grupo", color: "purple", icon: "Inbox", order: 999, tasks: [{ ...task, order: 0 }] },
+          { id: "orphan", name: t("checklist.orphanName"), color: "purple", icon: "Inbox", order: 999, tasks: [{ ...task, order: 0 }] },
         ]);
       }
       return;
@@ -127,15 +133,15 @@ export function ChecklistClient() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-end justify-between flex-wrap gap-3 mb-6">
         <div>
-          <h1 className="text-3xl font-medium text-ink-primary">Checklist</h1>
+          <h1 className="text-3xl font-medium text-ink-primary">{t("checklist.title")}</h1>
           <p className="text-sm text-ink-secondary mt-1">
             {totalTasks === 0
-              ? "Sin tareas todavía."
-              : `${doneTasks} de ${totalTasks} completadas.`}
+              ? t("checklist.subtitle.empty")
+              : t("checklist.subtitle.progress", { done: doneTasks, total: totalTasks })}
           </p>
         </div>
         <Button onClick={() => setAddingGroup(true)}>
-          <Plus className="w-4 h-4" /> Nuevo grupo
+          <Plus className="w-4 h-4" /> {t("checklist.newGroup")}
         </Button>
       </div>
 
@@ -155,12 +161,12 @@ export function ChecklistClient() {
           <div className="w-12 h-12 rounded-lg bg-coral-light text-coral-dark grid place-items-center mx-auto mb-4">
             <CheckCircle2 className="w-6 h-6" />
           </div>
-          <h2 className="text-lg font-medium text-ink-primary mb-1">Empezá tu checklist</h2>
+          <h2 className="text-lg font-medium text-ink-primary mb-1">{t("checklist.empty.title")}</h2>
           <p className="text-sm text-ink-secondary max-w-sm mx-auto mb-5">
-            Creá grupos (Diseño, Programación, Audio…) y agregá tareas para llevar el control.
+            {t("checklist.empty.body")}
           </p>
           <Button onClick={() => setAddingGroup(true)}>
-            <Plus className="w-4 h-4" /> Crear primer grupo
+            <Plus className="w-4 h-4" /> {t("checklist.empty.cta")}
           </Button>
         </div>
       ) : (
@@ -202,6 +208,7 @@ function GroupBlock({
   onDeleteTask: (id: string) => void;
   onMoveTask: (taskId: string, from: string | null, to: string | null) => void;
 }) {
+  const { t } = useT();
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState(group.name);
   const [draftColor, setDraftColor] = useState<AccentColor>(group.color);
@@ -287,7 +294,7 @@ function GroupBlock({
       <div className="divide-y divide-line">
         {group.tasks.length === 0 ? (
           <div className="px-4 py-6 text-center text-xs text-ink-tertiary">
-            Sin tareas en este grupo.
+            {t("checklist.emptyTasksInGroup")}
           </div>
         ) : (
           group.tasks.map((t) => (
@@ -309,7 +316,7 @@ function GroupBlock({
         <Input
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
-          placeholder="Nueva tarea…"
+          placeholder={t("checklist.task.placeholder")}
           className="bg-bg-primary"
           onKeyDown={(e) => {
             if (e.key === "Enter" && newTask.trim()) {
@@ -327,7 +334,7 @@ function GroupBlock({
             }
           }}
         >
-          Agregar
+          {t("common.add")}
         </Button>
       </div>
     </section>
@@ -344,6 +351,9 @@ function TaskRow({
   onDelete: () => void;
   onMoveTo: (groupId: string | null) => void;
 }) {
+  const { t } = useT();
+  const STATUS_META = getStatusMeta(t);
+  const PRIORITY_META = getPriorityMeta(t);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [desc, setDesc] = useState(task.description || "");
@@ -375,11 +385,11 @@ function TaskRow({
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
             className="min-h-[60px]"
-            placeholder="Notas (opcional)"
+            placeholder={t("checklist.task.notesPlaceholder")}
           />
           <div className="flex justify-end gap-2">
             <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button
               size="sm"
@@ -388,7 +398,7 @@ function TaskRow({
                 setEditing(false);
               }}
             >
-              Guardar
+              {t("common.save")}
             </Button>
           </div>
         </div>
@@ -430,7 +440,7 @@ function TaskRow({
                 value={currentGroupId}
                 onChange={(e) => onMoveTo(e.target.value === currentGroupId ? currentGroupId : e.target.value)}
                 className="text-[10px] h-5 py-0 px-1.5 max-w-[120px]"
-                title="Mover a otro grupo"
+                title={t("checklist.task.moveTo")}
               >
                 {allGroups.map((g) => (
                   <option key={g.id} value={g.id}>{g.name}</option>
@@ -459,6 +469,7 @@ function NewGroupForm({
   onCancel: () => void;
   onCreate: (p: { name: string; color: AccentColor; icon: string }) => void;
 }) {
+  const { t } = useT();
   const [name, setName] = useState("");
   const [color, setColor] = useState<AccentColor>("purple");
   const [icon, setIcon] = useState("ListChecks");
@@ -466,11 +477,11 @@ function NewGroupForm({
   return (
     <div className="bg-bg-primary border border-line rounded-lg p-4 mb-5 animate-fade-in">
       <div className="grid grid-cols-1 sm:grid-cols-[1fr,180px,180px,auto] gap-2 items-end">
-        <Field label="Nombre del grupo">
+        <Field label={t("checklist.newGroup.name")}>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Diseño, Programación, Audio…"
+            placeholder={t("checklist.newGroup.placeholder")}
             autoFocus
           />
         </Field>
@@ -481,7 +492,7 @@ function NewGroupForm({
             ))}
           </select>
         </Field>
-        <Field label="Color">
+        <Field label={t("checklist.newGroup.color")}>
           <div className="flex gap-1">
             {ACCENT_COLORS.map((c) => (
               <button
@@ -499,14 +510,14 @@ function NewGroupForm({
         </Field>
         <div className="flex gap-2">
           <Button variant="ghost" onClick={onCancel}>
-            Cancelar
+            {t("common.cancel")}
           </Button>
           <Button
             onClick={() => {
               if (name.trim()) onCreate({ name, color, icon });
             }}
           >
-            Crear
+            {t("common.create")}
           </Button>
         </div>
       </div>
@@ -515,6 +526,7 @@ function NewGroupForm({
 }
 
 function QuickAdd({ onAdd }: { onAdd: (title: string) => void }) {
+  const { t } = useT();
   const [val, setVal] = useState("");
   return (
     <div className="flex items-center gap-2 bg-bg-primary border border-dashed border-line-strong rounded-md px-3 py-2">
@@ -522,7 +534,7 @@ function QuickAdd({ onAdd }: { onAdd: (title: string) => void }) {
       <Input
         value={val}
         onChange={(e) => setVal(e.target.value)}
-        placeholder="Tarea sin asignar a un grupo…"
+        placeholder={t("checklist.quickAddPlaceholder")}
         className="border-0 bg-transparent"
         onKeyDown={(e) => {
           if (e.key === "Enter" && val.trim()) {
@@ -541,7 +553,7 @@ function QuickAdd({ onAdd }: { onAdd: (title: string) => void }) {
           }
         }}
       >
-        Agregar
+        {t("common.add")}
       </Button>
     </div>
   );

@@ -3,10 +3,12 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 export function ThemeToggle({ className }: { className?: string }) {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { t } = useT();
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
@@ -16,7 +18,7 @@ export function ThemeToggle({ className }: { className?: string }) {
           "w-9 h-9 grid place-items-center rounded-md border border-line text-ink-secondary",
           className
         )}
-        aria-label="Cambiar tema"
+        aria-label={t("theme.toggle")}
       >
         <Sun className="w-4 h-4" />
       </button>
@@ -44,7 +46,7 @@ export function ThemeToggle({ className }: { className?: string }) {
               ? "bg-purple-light text-purple-dark dark:bg-purple-light/40"
               : "text-ink-tertiary hover:text-ink-secondary"
           )}
-          aria-label={`Tema ${v}`}
+          aria-label={t(`theme.${v}`)}
         >
           <Icon className="w-3.5 h-3.5" />
         </button>

@@ -14,6 +14,7 @@ import { readFileAsDataUrl } from "@/lib/gdd-file";
 import { uploadAsset, dataUrlToAssetRef, isAssetRef } from "@/lib/gdd-manifest";
 import { useAssetUrl } from "@/lib/asset-urls";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 function slug(s: string) {
   return s
@@ -28,49 +29,50 @@ function slug(s: string) {
 // HERO
 // =====================================================
 export function HeroEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const { t } = useT();
   return (
     <div className="space-y-3">
-      <Field label="Eyebrow (texto pequeño arriba)">
+      <Field label={t("seg.hero.eyebrow")}>
         <Input value={data.eyebrow} onChange={(e) => onChange({ ...data, eyebrow: e.target.value })} />
       </Field>
-      <Field label="Título">
+      <Field label={t("seg.hero.title")}>
         <Input
           value={data.title}
           onChange={(e) => onChange({ ...data, title: e.target.value })}
-          placeholder="MADRE"
+          placeholder={t("seg.hero.titlePlaceholder")}
         />
       </Field>
-      <Field label="Palabra acentuada (opcional)" hint="Aparece en color de acento al final del título.">
+      <Field label={t("seg.hero.accentWord")} hint={t("seg.hero.accentWordHint")}>
         <Input
           value={data.accentWord || ""}
           onChange={(e) => onChange({ ...data, accentWord: e.target.value })}
         />
       </Field>
-      <Field label="Subtítulo / descripción">
+      <Field label={t("seg.hero.subtitle")}>
         <Textarea
           value={data.subtitle}
           onChange={(e) => onChange({ ...data, subtitle: e.target.value })}
         />
       </Field>
       <div>
-        <label>Tags</label>
+        <label>{t("tags.label")}</label>
         <div className="space-y-2">
-          {data.tags.map((t: any, i: number) => (
+          {data.tags.map((tag: any, i: number) => (
             <div key={i} className="flex items-center gap-2">
               <Input
-                value={t.label}
+                value={tag.label}
                 onChange={(e) => {
                   const next = [...data.tags];
-                  next[i] = { ...t, label: e.target.value };
+                  next[i] = { ...tag, label: e.target.value };
                   onChange({ ...data, tags: next });
                 }}
-                placeholder="Etiqueta"
+                placeholder={t("seg.hero.tagPlaceholder")}
               />
               <select
-                value={t.color}
+                value={tag.color}
                 onChange={(e) => {
                   const next = [...data.tags];
-                  next[i] = { ...t, color: e.target.value };
+                  next[i] = { ...tag, color: e.target.value };
                   onChange({ ...data, tags: next });
                 }}
                 className="max-w-[120px]"
@@ -80,7 +82,7 @@ export function HeroEditor({ data, onChange }: { data: any; onChange: (d: any) =
                 ))}
               </select>
               <button
-                onClick={() => onChange({ ...data, tags: data.tags.filter((_: any, idx: number) => idx !== i) })}
+                onClick={() => onChange({ ...data, tags: data.tags.filter((_tag: any, idx: number) => idx !== i) })}
                 className="text-ink-tertiary hover:text-red p-1.5"
                 type="button"
               >
@@ -89,7 +91,7 @@ export function HeroEditor({ data, onChange }: { data: any; onChange: (d: any) =
             </div>
           ))}
           <Button variant="outline" size="sm" onClick={() => onChange({ ...data, tags: [...data.tags, { label: "", color: "purple" }] })}>
-            <Plus className="w-3.5 h-3.5" /> Agregar tag
+            <Plus className="w-3.5 h-3.5" /> {t("seg.hero.addTag")}
           </Button>
         </div>
       </div>
@@ -101,15 +103,16 @@ export function HeroEditor({ data, onChange }: { data: any; onChange: (d: any) =
 // TEXT
 // =====================================================
 export function TextEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const { t } = useT();
   return (
     <div className="space-y-3">
-      <Field label="Encabezado (opcional)">
+      <Field label={t("seg.text.heading")}>
         <Input
           value={data.heading || ""}
           onChange={(e) => onChange({ ...data, heading: e.target.value })}
         />
       </Field>
-      <Field label="Contenido">
+      <Field label={t("seg.text.body")}>
         <Textarea
           value={data.body}
           onChange={(e) => onChange({ ...data, body: e.target.value })}
@@ -124,6 +127,7 @@ export function TextEditor({ data, onChange }: { data: any; onChange: (d: any) =
 // IMAGE
 // =====================================================
 export function ImageEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const { t } = useT();
   const [uploading, setUploading] = useState(false);
   // ponytail: useAssetUrl resolves the in-memory ref to a blob URL on
   // first render; subsequent renders are sync from the cache.
@@ -142,48 +146,48 @@ export function ImageEditor({ data, onChange }: { data: any; onChange: (d: any) 
 
   return (
     <div className="space-y-3">
-      <Field label="Imagen">
+      <Field label={t("seg.image.image")}>
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={previewUrl} alt={data.alt} className="w-full max-w-md rounded-md border border-line" />
         ) : (
           <div className="w-full max-w-md aspect-video rounded-md border border-dashed border-line-strong grid place-items-center text-ink-tertiary text-sm gap-2 flex-col">
             <ImageIcon className="w-5 h-5" />
-            Sin imagen
+            {t("seg.image.noImage")}
           </div>
         )}
         <div className="mt-2 flex items-center gap-2">
           <label className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-line-strong bg-bg-primary text-xs cursor-pointer hover:bg-bg-secondary">
             {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-            Subir imagen
+            {t("seg.image.upload")}
             <input type="file" accept="image/*" onChange={onUpload} className="hidden" />
           </label>
           {data.url ? (
             <Button variant="ghost" size="sm" onClick={() => onChange({ ...data, url: "" })}>
-              Quitar
+              {t("seg.image.remove")}
             </Button>
           ) : null}
         </div>
       </Field>
-      <Field label="Texto alternativo">
+      <Field label={t("seg.image.alt")}>
         <Input
           value={data.alt}
           onChange={(e) => onChange({ ...data, alt: e.target.value })}
-          placeholder="Descripción de la imagen"
+          placeholder={t("seg.image.altPlaceholder")}
         />
       </Field>
-      <Field label="Pie de imagen (opcional)">
+      <Field label={t("seg.image.caption")}>
         <Input
           value={data.caption || ""}
           onChange={(e) => onChange({ ...data, caption: e.target.value })}
         />
       </Field>
-      <Field label="Ancho">
+      <Field label={t("seg.image.width")}>
         <select value={data.width} onChange={(e) => onChange({ ...data, width: e.target.value })}>
-          <option value="narrow">Angosta</option>
-          <option value="normal">Normal</option>
-          <option value="wide">Ancha</option>
-          <option value="full">Completa</option>
+          <option value="narrow">{t("seg.image.width.narrow")}</option>
+          <option value="normal">{t("seg.image.width.normal")}</option>
+          <option value="wide">{t("seg.image.width.wide")}</option>
+          <option value="full">{t("seg.image.width.full")}</option>
         </select>
       </Field>
     </div>
@@ -194,9 +198,10 @@ export function ImageEditor({ data, onChange }: { data: any; onChange: (d: any) 
 // GRID
 // =====================================================
 export function GridEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const { t } = useT();
   return (
     <div className="space-y-3">
-      <Field label="Columnas">
+      <Field label={t("seg.grid.columns")}>
         <select
           value={data.columns}
           onChange={(e) => onChange({ ...data, columns: Number(e.target.value) as 2 | 3 })}
@@ -206,7 +211,7 @@ export function GridEditor({ data, onChange }: { data: any; onChange: (d: any) =
         </select>
       </Field>
       <div>
-        <label>Tarjetas</label>
+        <label>{t("seg.grid.cards")}</label>
         <div className="space-y-2">
           {data.items.map((it: any, idx: number) => (
             <div key={idx} className="border border-line rounded-md p-3 space-y-2">
@@ -231,7 +236,7 @@ export function GridEditor({ data, onChange }: { data: any; onChange: (d: any) =
                     items[idx] = { ...it, title: e.target.value };
                     onChange({ ...data, items });
                   }}
-                  placeholder="Título"
+                  placeholder={t("seg.grid.cardTitle")}
                 />
                 <button
                   onClick={() => onChange({ ...data, items: data.items.filter((_: any, i: number) => i !== idx) })}
@@ -249,7 +254,7 @@ export function GridEditor({ data, onChange }: { data: any; onChange: (d: any) =
                   onChange({ ...data, items });
                 }}
                 className="min-h-[60px]"
-                placeholder="Descripción"
+                placeholder={t("seg.grid.cardBody")}
               />
             </div>
           ))}
@@ -258,7 +263,7 @@ export function GridEditor({ data, onChange }: { data: any; onChange: (d: any) =
             size="sm"
             onClick={() => onChange({ ...data, items: [...data.items, { icon: "Box", title: "", body: "" }] })}
           >
-            <Plus className="w-3.5 h-3.5" /> Agregar tarjeta
+            <Plus className="w-3.5 h-3.5" /> {t("seg.grid.addCard")}
           </Button>
         </div>
       </div>
@@ -270,9 +275,10 @@ export function GridEditor({ data, onChange }: { data: any; onChange: (d: any) =
 // CALLOUT
 // =====================================================
 export function CalloutEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const { t } = useT();
   return (
     <div className="space-y-3">
-      <Field label="Color">
+      <Field label={t("seg.callout.color")}>
         <div className="flex gap-2">
           {ACCENT_COLORS.map((c) => (
             <button
@@ -294,13 +300,13 @@ export function CalloutEditor({ data, onChange }: { data: any; onChange: (d: any
           ))}
         </div>
       </Field>
-      <Field label="Título (opcional)" hint="Sin título = se ve como una nota al pie.">
+      <Field label={t("seg.callout.title")} hint={t("seg.callout.titleHint")}>
         <Input
           value={data.title || ""}
           onChange={(e) => onChange({ ...data, title: e.target.value })}
         />
       </Field>
-      <Field label="Contenido">
+      <Field label={t("seg.callout.body")}>
         <Textarea
           value={data.body}
           onChange={(e) => onChange({ ...data, body: e.target.value })}
@@ -315,6 +321,7 @@ export function CalloutEditor({ data, onChange }: { data: any; onChange: (d: any
 // CHARACTER
 // =====================================================
 export function CharacterEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const { t } = useT();
   const [uploading, setUploading] = useState(false);
   const previewUrl = useAssetUrl(data.avatarUrl);
 
@@ -332,31 +339,31 @@ export function CharacterEditor({ data, onChange }: { data: any; onChange: (d: a
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Nombre">
+        <Field label={t("seg.character.name")}>
           <Input
             value={data.name}
             onChange={(e) => onChange({ ...data, name: e.target.value })}
-            placeholder="Lena Voss"
+            placeholder={t("seg.character.namePlaceholder")}
           />
         </Field>
-        <Field label="Rol">
+        <Field label={t("seg.character.role")}>
           <Input
             value={data.role}
             onChange={(e) => onChange({ ...data, role: e.target.value })}
-            placeholder="Protagonista, NPC, Compañero…"
+            placeholder={t("seg.character.rolePlaceholder")}
           />
         </Field>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Icono (fallback)" hint="Se muestra si no hay imagen de concepto.">
+        <Field label={t("seg.character.icon")} hint={t("seg.character.iconHint")}>
           <select value={data.icon} onChange={(e) => onChange({ ...data, icon: e.target.value })}>
             {ICON_OPTIONS.map((ic) => (
               <option key={ic} value={ic}>{ic}</option>
             ))}
           </select>
         </Field>
-        <Field label="Imagen de concepto" hint="Opcional. Reemplaza al icono en el GDD.">
+        <Field label={t("seg.character.conceptImage")} hint={t("seg.character.conceptImageHint")}>
           <div className="flex items-center gap-2">
             {previewUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -370,7 +377,7 @@ export function CharacterEditor({ data, onChange }: { data: any; onChange: (d: a
             )}
             <label className="flex-1 inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line-strong bg-bg-primary text-xs cursor-pointer hover:bg-bg-secondary">
               {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-              {data.avatarUrl ? "Cambiar" : "Subir"}
+              {data.avatarUrl ? t("seg.character.change") : t("seg.character.upload")}
               <input type="file" accept="image/*" onChange={onUpload} className="hidden" />
             </label>
             {data.avatarUrl ? (
@@ -378,7 +385,7 @@ export function CharacterEditor({ data, onChange }: { data: any; onChange: (d: a
                 type="button"
                 onClick={() => onChange({ ...data, avatarUrl: "" })}
                 className="p-1.5 text-ink-tertiary hover:text-red"
-                title="Quitar"
+                title={t("seg.image.remove")}
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -387,7 +394,7 @@ export function CharacterEditor({ data, onChange }: { data: any; onChange: (d: a
         </Field>
       </div>
 
-      <Field label="Descripción / Lore">
+      <Field label={t("seg.character.description")}>
         <Textarea
           value={data.description}
           onChange={(e) => onChange({ ...data, description: e.target.value })}
@@ -416,6 +423,7 @@ function StatFormulaRow({
   onBaseChange: (v: number) => void;
   onFormulaChange: (v: string | undefined) => void;
 }) {
+  const { t } = useT();
   const [showSim, setShowSim] = useState(false);
   const ctx: FormulaContext = { level: 1, base };
   const active = formula && formula.trim() && formula !== "base";
@@ -441,7 +449,7 @@ function StatFormulaRow({
             "mt-5 p-1.5 rounded-md text-xs",
             active ? "bg-teal-light text-teal-dark" : "text-ink-tertiary hover:text-ink-primary hover:bg-bg-secondary"
           )}
-          title={active ? "Fórmula activa" : "Sin fórmula"}
+          title={active ? t("seg.boss.formulaActive") : t("seg.boss.formulaInactive")}
         >
           <Calculator className="w-3.5 h-3.5" />
         </button>
@@ -459,7 +467,7 @@ function StatFormulaRow({
             }}
             className="text-xs"
           >
-            <option value="">Preset…</option>
+            <option value="">{t("seg.boss.formulaPreset")}</option>
             {FORMULA_PRESETS.map((p) => (
               <option key={p.id} value={p.id}>{p.label} — {p.description}</option>
             ))}
@@ -467,7 +475,7 @@ function StatFormulaRow({
           <Input
             value={formula || ""}
             onChange={(e) => onFormulaChange(e.target.value || undefined)}
-            placeholder="base + 5 * (level - 1)"
+            placeholder={t("seg.boss.formulaPlaceholder")}
             className="font-mono text-[11px]"
           />
           {active ? (
@@ -478,7 +486,7 @@ function StatFormulaRow({
                     const v = evalFormula(formula!, { ...ctx, level: lvl });
                     return (
                       <div key={lvl} className="flex justify-between text-ink-secondary">
-                        <span>L{lvl}:</span>
+                        <span>{t("seg.boss.formulaLevelLabel", { n: lvl })}</span>
                         <span className="text-ink-primary font-semibold">
                           {Number.isNaN(v) ? "—" : v}
                         </span>
@@ -487,14 +495,14 @@ function StatFormulaRow({
                   })}
                 </div>
               ) : (
-                <span className="text-red">Fórmula inválida</span>
+                <span className="text-red">{t("seg.boss.formulaInvalid")}</span>
               )}
               <button
                 type="button"
                 onClick={() => onFormulaChange(undefined)}
                 className="mt-1.5 text-ink-tertiary hover:text-red text-[10px] underline"
               >
-                Quitar fórmula
+                {t("seg.boss.formulaRemove")}
               </button>
             </div>
           ) : null}
@@ -505,6 +513,7 @@ function StatFormulaRow({
 }
 
 export function EnemyEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const { t } = useT();
   const [uploading, setUploading] = useState(false);
   const previewUrl = useAssetUrl(data.avatarUrl);
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -520,21 +529,21 @@ export function EnemyEditor({ data, onChange }: { data: any; onChange: (d: any) 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Nombre">
+        <Field label={t("seg.enemy.name")}>
           <Input
             value={data.name}
             onChange={(e) => onChange({ ...data, name: e.target.value })}
-            placeholder="Swarmer"
+            placeholder={t("seg.enemy.namePlaceholder")}
           />
         </Field>
-        <Field label="Tier">
+        <Field label={t("seg.enemy.tier")}>
           <select value={data.tier} onChange={(e) => onChange({ ...data, tier: e.target.value })}>
-            <option value="common">Común</option>
-            <option value="elite">Élite</option>
+            <option value="common">{t("seg.enemy.tier.common")}</option>
+            <option value="elite">{t("seg.enemy.tier.elite")}</option>
           </select>
         </Field>
       </div>
-      <Field label="Imagen (opcional)" hint="Concept art. Se muestra en el GDD y en el export.">
+      <Field label={t("seg.enemy.image")} hint={t("seg.enemy.imageHint")}>
         <div className="flex items-center gap-2">
           {data.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -544,7 +553,7 @@ export function EnemyEditor({ data, onChange }: { data: any; onChange: (d: any) 
           )}
           <label className="flex-1 inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line-strong bg-bg-primary text-xs cursor-pointer hover:bg-bg-secondary">
             {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-            {data.avatarUrl ? "Cambiar" : "Subir"}
+            {data.avatarUrl ? t("seg.character.change") : t("seg.character.upload")}
             <input type="file" accept="image/*" onChange={onUpload} className="hidden" />
           </label>
           {data.avatarUrl ? (
@@ -554,7 +563,7 @@ export function EnemyEditor({ data, onChange }: { data: any; onChange: (d: any) 
           ) : null}
         </div>
       </Field>
-      <Field label="Descripción">
+      <Field label={t("seg.enemy.description")}>
         <Textarea
           value={data.description}
           onChange={(e) => onChange({ ...data, description: e.target.value })}
@@ -562,24 +571,24 @@ export function EnemyEditor({ data, onChange }: { data: any; onChange: (d: any) 
         />
       </Field>
       <div>
-        <label>Stats</label>
+        <label>{t("seg.enemy.stats")}</label>
         <div className="grid grid-cols-3 gap-2">
           <StatFormulaRow
-            label="Vida"
+            label={t("seg.enemy.stat.health")}
             base={data.stats.health}
             formula={data.formulas?.health}
             onBaseChange={(v) => onChange({ ...data, stats: { ...data.stats, health: v } })}
             onFormulaChange={(v) => onChange({ ...data, formulas: { ...(data.formulas ?? {}), health: v } })}
           />
           <StatFormulaRow
-            label="Daño"
+            label={t("seg.enemy.stat.damage")}
             base={data.stats.damage}
             formula={data.formulas?.damage}
             onBaseChange={(v) => onChange({ ...data, stats: { ...data.stats, damage: v } })}
             onFormulaChange={(v) => onChange({ ...data, formulas: { ...(data.formulas ?? {}), damage: v } })}
           />
           <StatFormulaRow
-            label="Velocidad"
+            label={t("seg.enemy.stat.speed")}
             base={data.stats.speed}
             formula={data.formulas?.speed}
             onBaseChange={(v) => onChange({ ...data, stats: { ...data.stats, speed: v } })}
@@ -587,11 +596,11 @@ export function EnemyEditor({ data, onChange }: { data: any; onChange: (d: any) 
           />
         </div>
         <p className="text-[10px] text-ink-tertiary mt-1.5">
-          Tocá el ícono <Calculator className="w-2.5 h-2.5 inline" /> para asignar una fórmula (level, base, Math.*).
+          {t("seg.enemy.statsHint", { calc: "" })}
         </p>
       </div>
       <div>
-        <label>Comportamientos</label>
+        <label>{t("seg.enemy.behaviors")}</label>
         <div className="space-y-2">
           {data.behaviors.map((b: any, i: number) => (
             <div key={i} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-start">
@@ -602,7 +611,7 @@ export function EnemyEditor({ data, onChange }: { data: any; onChange: (d: any) 
                   next[i] = { ...b, trigger: e.target.value };
                   onChange({ ...data, behaviors: next });
                 }}
-                placeholder="Cuándo (Player within 3 tiles)"
+                placeholder={t("seg.enemy.behaviorTrigger")}
               />
               <Input
                 value={b.action}
@@ -611,7 +620,7 @@ export function EnemyEditor({ data, onChange }: { data: any; onChange: (d: any) 
                   next[i] = { ...b, action: e.target.value };
                   onChange({ ...data, behaviors: next });
                 }}
-                placeholder="Acción (Charges at player)"
+                placeholder={t("seg.enemy.behaviorAction")}
               />
               <button
                 onClick={() => onChange({ ...data, behaviors: data.behaviors.filter((_: any, idx: number) => idx !== i) })}
@@ -627,7 +636,7 @@ export function EnemyEditor({ data, onChange }: { data: any; onChange: (d: any) 
             size="sm"
             onClick={() => onChange({ ...data, behaviors: [...data.behaviors, { trigger: "", action: "" }] })}
           >
-            <Plus className="w-3.5 h-3.5" /> Agregar comportamiento
+            <Plus className="w-3.5 h-3.5" /> {t("seg.enemy.addBehavior")}
           </Button>
         </div>
       </div>
@@ -639,6 +648,7 @@ export function EnemyEditor({ data, onChange }: { data: any; onChange: (d: any) 
 // BOSS
 // =====================================================
 export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const { t } = useT();
   const [uploading, setUploading] = useState(false);
   const previewUrl = useAssetUrl(data.avatarUrl);
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -653,14 +663,14 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
   }
   return (
     <div className="space-y-3">
-      <Field label="Nombre">
+      <Field label={t("seg.boss.name")}>
         <Input
           value={data.name}
           onChange={(e) => onChange({ ...data, name: e.target.value })}
-          placeholder="El Vigilante"
+          placeholder={t("seg.boss.namePlaceholder")}
         />
       </Field>
-      <Field label="Imagen (opcional)" hint="Concept art. Se muestra en el GDD y en el export.">
+      <Field label={t("seg.boss.image")} hint={t("seg.boss.imageHint")}>
         <div className="flex items-center gap-2">
           {data.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -670,7 +680,7 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
           )}
           <label className="flex-1 inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line-strong bg-bg-primary text-xs cursor-pointer hover:bg-bg-secondary">
             {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-            {data.avatarUrl ? "Cambiar" : "Subir"}
+            {data.avatarUrl ? t("seg.character.change") : t("seg.character.upload")}
             <input type="file" accept="image/*" onChange={onUpload} className="hidden" />
           </label>
           {data.avatarUrl ? (
@@ -680,7 +690,7 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
           ) : null}
         </div>
       </Field>
-      <Field label="Descripción / Lore">
+      <Field label={t("seg.boss.description")}>
         <Textarea
           value={data.description}
           onChange={(e) => onChange({ ...data, description: e.target.value })}
@@ -688,12 +698,12 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
         />
       </Field>
       <div>
-        <label>Fases</label>
+        <label>{t("seg.boss.phases")}</label>
         <div className="space-y-3">
           {data.phases.map((p: any, i: number) => (
             <div key={i} className="border border-line rounded-md p-3 space-y-2 bg-bg-secondary/40">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-ink-secondary">Fase {i + 1}</span>
+                <span className="text-xs font-medium text-ink-secondary">{t("seg.boss.phaseNum", { n: i + 1 })}</span>
                 <button
                   onClick={() => onChange({ ...data, phases: data.phases.filter((_: any, idx: number) => idx !== i) })}
                   className="text-ink-tertiary hover:text-red p-1"
@@ -703,7 +713,7 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <Field label="Nombre">
+                <Field label={t("seg.boss.phaseName")}>
                   <Input
                     value={p.name}
                     onChange={(e) => {
@@ -711,10 +721,10 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
                       next[i] = { ...p, name: e.target.value };
                       onChange({ ...data, phases: next });
                     }}
-                    placeholder="Phase 1"
+                    placeholder={t("seg.boss.phaseNamePlaceholder")}
                   />
                 </Field>
-                <Field label="Trigger">
+                <Field label={t("seg.boss.phaseTrigger")}>
                   <Input
                     value={p.trigger}
                     onChange={(e) => {
@@ -722,11 +732,11 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
                       next[i] = { ...p, trigger: e.target.value };
                       onChange({ ...data, phases: next });
                     }}
-                    placeholder="HP > 50%"
+                    placeholder={t("seg.boss.phaseTriggerPlaceholder")}
                   />
                 </Field>
               </div>
-              <Field label="Descripción">
+              <Field label={t("seg.boss.phaseDescription")}>
                 <Textarea
                   value={p.description}
                   onChange={(e) => {
@@ -737,7 +747,7 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
                   className="min-h-[60px]"
                 />
               </Field>
-              <Field label="Ataques (uno por línea)">
+              <Field label={t("seg.boss.phaseAttacks")}>
                 <Textarea
                   value={p.attacks.join("\n")}
                   onChange={(e) => {
@@ -746,7 +756,7 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
                     onChange({ ...data, phases: next });
                   }}
                   className="min-h-[60px] font-mono text-xs"
-                  placeholder={"Slash\nStomp\nSweep"}
+                  placeholder={t("seg.boss.phaseAttacksPlaceholder")}
                 />
               </Field>
             </div>
@@ -754,32 +764,32 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onChange({ ...data, phases: [...data.phases, { name: `Phase ${data.phases.length + 1}`, trigger: "", description: "", attacks: [] }] })}
+            onClick={() => onChange({ ...data, phases: [...data.phases, { name: t("seg.boss.phaseNameDefault", { n: data.phases.length + 1 }), trigger: "", description: "", attacks: [] }] })}
           >
-            <Plus className="w-3.5 h-3.5" /> Agregar fase
+            <Plus className="w-3.5 h-3.5" /> {t("seg.boss.addPhase")}
           </Button>
         </div>
       </div>
       <div>
-        <label>Stats del boss</label>
-        <p className="text-[10px] text-ink-tertiary mb-1.5">Stats por fase. Tocá <Calculator className="w-2.5 h-2.5 inline" /> para asignar fórmula.</p>
+        <label>{t("seg.boss.stats")}</label>
+        <p className="text-[10px] text-ink-tertiary mb-1.5">{t("seg.boss.statsHint", { calc: "" })}</p>
         <div className="grid grid-cols-3 gap-2">
           <StatFormulaRow
-            label="Vida base"
+            label={t("seg.boss.stat.health")}
             base={data.stats?.health ?? 100}
             formula={data.formulas?.health}
             onBaseChange={(v) => onChange({ ...data, stats: { ...(data.stats ?? { health: v, damage: 10, speed: 1 }), health: v } })}
             onFormulaChange={(v) => onChange({ ...data, formulas: { ...(data.formulas ?? {}), health: v } })}
           />
           <StatFormulaRow
-            label="Daño base"
+            label={t("seg.boss.stat.damage")}
             base={data.stats?.damage ?? 10}
             formula={data.formulas?.damage}
             onBaseChange={(v) => onChange({ ...data, stats: { ...(data.stats ?? { health: 100, damage: v, speed: 1 }), damage: v } })}
             onFormulaChange={(v) => onChange({ ...data, formulas: { ...(data.formulas ?? {}), damage: v } })}
           />
           <StatFormulaRow
-            label="Velocidad"
+            label={t("seg.boss.stat.speed")}
             base={data.stats?.speed ?? 1}
             formula={data.formulas?.speed}
             onBaseChange={(v) => onChange({ ...data, stats: { ...(data.stats ?? { health: 100, damage: 10, speed: v }), speed: v } })}
@@ -787,11 +797,11 @@ export function BossEditor({ data, onChange }: { data: any; onChange: (d: any) =
           />
         </div>
       </div>
-      <Field label="Debilidad (opcional)">
+      <Field label={t("seg.boss.weakness")}>
         <Input
           value={data.weakness || ""}
           onChange={(e) => onChange({ ...data, weakness: e.target.value })}
-          placeholder="Vulnerable a fuego"
+          placeholder={t("seg.boss.weaknessPlaceholder")}
         />
       </Field>
     </div>
@@ -809,6 +819,7 @@ function truncate(s: string, n: number) {
 }
 
 export function DialogueEditor({ data, onChange }: { data: DialogueData; onChange: (d: DialogueData) => void }) {
+  const { t } = useT();
   const rawNodes: DialogueNode[] = data.nodes || [];
   const startId = data.startNodeId;
   const nodes = ensureDialoguePositions(rawNodes, startId);
@@ -920,14 +931,14 @@ export function DialogueEditor({ data, onChange }: { data: DialogueData; onChang
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2">
-        <Field label="NPC">
+        <Field label={t("seg.dialogue.npc")}>
           <Input
             value={data.name}
             onChange={(e) => onChange({ ...data, name: e.target.value })}
-            placeholder="Viejo ermitaño"
+            placeholder={t("seg.dialogue.npcPlaceholder")}
           />
         </Field>
-        <Field label="Nodo inicial">
+        <Field label={t("seg.dialogue.startNode")}>
           <select
             value={startId || ""}
             onChange={(e) => setStart(e.target.value)}
@@ -936,25 +947,25 @@ export function DialogueEditor({ data, onChange }: { data: DialogueData; onChang
           >
             {rawNodes.length === 0 ? <option value="">—</option> : null}
             {rawNodes.map((n) => (
-              <option key={n.id} value={n.id}>{n.id} — {truncate(n.speaker || "?", 18)}</option>
+              <option key={n.id} value={n.id}>{n.id} — {truncate(n.speaker || t("seg.dialogue.speakerDefault"), 18)}</option>
             ))}
           </select>
         </Field>
       </div>
-      <Field label="Contexto (opcional)">
+      <Field label={t("seg.dialogue.context")}>
         <Textarea
           value={data.description}
           onChange={(e) => onChange({ ...data, description: e.target.value })}
-          placeholder="Encuentro en el cruce del bosque, después del tutorial."
+          placeholder={t("seg.dialogue.contextPlaceholder")}
           className="min-h-[50px]"
         />
       </Field>
 
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="!mb-0 text-xs font-medium text-ink-secondary">Diagrama ({rawNodes.length} líneas)</label>
+          <label className="!mb-0 text-xs font-medium text-ink-secondary">{t("seg.dialogue.diagram", { n: rawNodes.length })}</label>
           <Button variant="outline" size="sm" onClick={addNode}>
-            <Plus className="w-3.5 h-3.5" /> Línea
+            <Plus className="w-3.5 h-3.5" /> {t("seg.dialogue.addLine")}
           </Button>
         </div>
         <NodeCanvas
@@ -976,15 +987,15 @@ export function DialogueEditor({ data, onChange }: { data: DialogueData; onChang
                 <span className="text-[9px] font-mono text-ink-tertiary">{n.id}</span>
                 {isStart ? <span className="text-[8px] font-bold text-teal-dark">▶</span> : null}
                 <span className="text-[10px] font-semibold text-ink-secondary truncate flex-1" data-no-drag>
-                  {n.speaker || "?"}
+                  {n.speaker || t("seg.dialogue.speakerDefault")}
                 </span>
               </div>
               <p className="text-[10px] text-ink-primary line-clamp-2 leading-tight" data-no-drag>
-                {n.text || "(sin texto)"}
+                {n.text || t("seg.view.noText")}
               </p>
             </div>
           )}
-          emptyHint="Hacé clic en «Línea» para empezar"
+          emptyHint={t("seg.dialogue.emptyHint")}
           className="min-h-[420px]"
         />
       </div>
@@ -993,35 +1004,35 @@ export function DialogueEditor({ data, onChange }: { data: DialogueData; onChang
         <div className="border border-teal/40 bg-teal-light/20 rounded-md p-2.5 space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] uppercase tracking-wider font-semibold text-teal-dark">
-              Editando {selectedNode.id}
+              {t("seg.dialogue.editing", { id: selectedNode.id })}
             </span>
             <button onClick={() => setSelectedId(null)} className="text-ink-tertiary hover:text-ink-primary text-xs" type="button">
-              cerrar
+              {t("common.close")}
             </button>
           </div>
           <Input
             value={selectedNode.speaker}
             onChange={(e) => setNodes(rawNodes.map((n) => n.id === selectedNode.id ? { ...n, speaker: e.target.value } : n))}
-            placeholder="NPC / Player / Narrator"
+            placeholder={t("seg.dialogue.speaker")}
             className="text-xs"
           />
           <Textarea
             value={selectedNode.text}
             onChange={(e) => setNodes(rawNodes.map((n) => n.id === selectedNode.id ? { ...n, text: e.target.value } : n))}
-            placeholder="Texto de la línea…"
+            placeholder={t("seg.dialogue.lineText")}
             className="min-h-[60px] text-xs"
           />
           <div className="border-t border-line pt-1.5 space-y-1">
             <div className="flex items-center justify-between">
               <label className="text-[10px] uppercase tracking-wider text-ink-tertiary font-semibold">
-                Opciones ({selectedNode.choices.length})
+                {t("seg.dialogue.choices", { n: selectedNode.choices.length })}
               </label>
               <button onClick={() => addChoice(selectedNode.id)} className="text-[10px] text-teal-dark hover:underline" type="button">
-                + opción
+                {t("seg.dialogue.addChoice")}
               </button>
             </div>
             {selectedNode.choices.length === 0 ? (
-              <p className="text-[10px] text-ink-tertiary italic">Sin opciones — el diálogo termina acá.</p>
+              <p className="text-[10px] text-ink-tertiary italic">{t("seg.dialogue.noChoices")}</p>
             ) : null}
             {selectedNode.choices.map((c, i) => (
               <div key={i} className="flex items-center gap-1">
@@ -1029,7 +1040,7 @@ export function DialogueEditor({ data, onChange }: { data: DialogueData; onChang
                 <Input
                   value={c.label}
                   onChange={(e) => updateChoice(selectedNode.id, i, { label: e.target.value })}
-                  placeholder="Texto de la opción"
+                  placeholder={t("seg.dialogue.choicePlaceholder")}
                   className="text-[11px] flex-1"
                 />
                 <select
@@ -1054,6 +1065,7 @@ export function DialogueEditor({ data, onChange }: { data: DialogueData; onChang
 // NOTE (Lienzo) — title + free-draw canvas (+ legacy text body)
 // =====================================================
 export function NoteEditor({ data, onChange }: { data: NoteData; onChange: (d: NoteData) => void }) {
+  const { t } = useT();
   // ponytail: the canvas emits PNG data URLs on every stroke. We convert
   // each one to an IDB-backed ref so the in-memory state stays small.
   // The token guards against out-of-order completions when the user
@@ -1074,25 +1086,25 @@ export function NoteEditor({ data, onChange }: { data: NoteData; onChange: (d: N
 
   return (
     <div className="space-y-3">
-      <Field label="Título">
+      <Field label={t("seg.note.title")}>
         <Input
           value={data.title}
           onChange={(e) => onChange({ ...data, title: e.target.value })}
-          placeholder="Brainstorm combate, Referencias, Lo que tengo en la cabeza…"
+          placeholder={t("seg.note.titlePlaceholder")}
         />
       </Field>
-      <Field label="Lienzo" hint="Dibujá con el mouse o el dedo. 3 pinceles, 7 colores, 3 tamaños.">
+      <Field label={t("seg.note.canvas")} hint={t("seg.note.canvasHint")}>
         <DrawingCanvas
           value={drawingUrl}
           onChange={handleDrawing}
         />
       </Field>
       {data.body !== undefined ? (
-        <Field label="Texto (opcional)" hint="Notas escritas al lado del dibujo. Dejá vacío si no usás.">
+        <Field label={t("seg.note.text")} hint={t("seg.note.textHint")}>
           <Textarea
             value={data.body || ""}
             onChange={(e) => onChange({ ...data, body: e.target.value })}
-            placeholder="Notas, links, contexto del dibujo…"
+            placeholder={t("seg.note.textPlaceholder")}
             className="min-h-[100px] text-xs"
           />
         </Field>
@@ -1105,16 +1117,17 @@ export function NoteEditor({ data, onChange }: { data: NoteData; onChange: (d: N
 // TENSION CURVE — interactive 2D chart of pacing/intensity
 // =====================================================
 export function TensionEditor({ data, onChange }: { data: TensionData; onChange: (d: TensionData) => void }) {
+  const { t } = useT();
   return (
     <div className="space-y-3">
-      <Field label="Título">
+      <Field label={t("seg.tension.title")}>
         <Input
           value={data.title}
           onChange={(e) => onChange({ ...data, title: e.target.value })}
-          placeholder="Curva de tensión, Pacing, Ritmo del juego…"
+          placeholder={t("seg.tension.titlePlaceholder")}
         />
       </Field>
-      <Field label="Curva" hint="Click en el gráfico para agregar un beat. Arrastrá un beat para moverlo.">
+      <Field label={t("seg.tension.curve")} hint={t("seg.tension.curveHint")}>
         <TensionCanvas data={data} onChange={onChange} />
       </Field>
     </div>
@@ -1124,6 +1137,7 @@ export function TensionEditor({ data, onChange }: { data: TensionData; onChange:
 // CORE LOOP
 // =====================================================
 export function LoopEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
+  const { t } = useT();
   const rawNodes: any[] = data.nodes || [];
   const edges: any[] = data.edges || [];
   const nodes = ensureLoopPositions(rawNodes);
@@ -1140,7 +1154,7 @@ export function LoopEditor({ data, onChange }: { data: any; onChange: (d: any) =
     // Place near the first existing node (or 60,60)
     const baseX = rawNodes[0]?.x ?? 60;
     const baseY = rawNodes[0]?.y ?? 60;
-    setNodes([...rawNodes, { id, label: `Paso ${rawNodes.length + 1}`, description: "", x: baseX + 60, y: baseY + 60 }]);
+    setNodes([...rawNodes, { id, label: t("seg.loop.nodeLabelDefault", { n: rawNodes.length + 1 }), description: "", x: baseX + 60, y: baseY + 60 }]);
     setSelectedId(id);
   }
 
@@ -1167,27 +1181,27 @@ export function LoopEditor({ data, onChange }: { data: any; onChange: (d: any) =
 
   return (
     <div className="space-y-3">
-      <Field label="Nombre del loop">
+      <Field label={t("seg.loop.name")}>
         <Input
           value={data.name || ""}
           onChange={(e) => onChange({ ...data, name: e.target.value })}
-          placeholder="Core loop / Loop de combate / Loop de progresión…"
+          placeholder={t("seg.loop.namePlaceholder")}
         />
       </Field>
-      <Field label="Descripción (opcional)">
+      <Field label={t("seg.loop.description")}>
         <Textarea
           value={data.description || ""}
           onChange={(e) => onChange({ ...data, description: e.target.value })}
           className="min-h-[50px]"
-          placeholder="Qué representa este loop y por qué importa."
+          placeholder={t("seg.loop.descriptionPlaceholder")}
         />
       </Field>
 
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="!mb-0">Diagrama ({nodes.length} pasos)</label>
+          <label className="!mb-0">{t("seg.loop.diagram", { n: nodes.length })}</label>
           <Button variant="outline" size="sm" onClick={addNode}>
-            <Plus className="w-3.5 h-3.5" /> Paso
+            <Plus className="w-3.5 h-3.5" /> {t("seg.loop.addStep")}
           </Button>
         </div>
         <NodeCanvas
@@ -1208,7 +1222,7 @@ export function LoopEditor({ data, onChange }: { data: any; onChange: (d: any) =
               <div className="flex items-center gap-1">
                 <span className="text-[9px] font-mono text-ink-tertiary">{n.id}</span>
                 <span className="text-xs font-medium text-ink-primary truncate flex-1" data-no-drag>
-                  {n.label || "(sin nombre)"}
+                  {n.label || t("seg.view.untitled")}
                 </span>
               </div>
               {n.description ? (
@@ -1216,7 +1230,7 @@ export function LoopEditor({ data, onChange }: { data: any; onChange: (d: any) =
               ) : null}
             </div>
           )}
-          emptyHint="Hacé clic en «Paso» para empezar"
+          emptyHint={t("seg.loop.emptyHint")}
           className="min-h-[420px]"
         />
       </div>
@@ -1226,26 +1240,26 @@ export function LoopEditor({ data, onChange }: { data: any; onChange: (d: any) =
         <div className="border border-teal/40 bg-teal-light/20 rounded-md p-2.5 space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] uppercase tracking-wider font-semibold text-teal-dark">
-              Editando {selectedNode.id}
+              {t("seg.loop.editing", { id: selectedNode.id })}
             </span>
             <button
               onClick={() => setSelectedId(null)}
               className="text-ink-tertiary hover:text-ink-primary text-xs"
               type="button"
             >
-              cerrar
+              {t("common.close")}
             </button>
           </div>
           <Input
             value={selectedNode.label}
             onChange={(e) => setNodes(rawNodes.map((n) => n.id === selectedNode.id ? { ...n, label: e.target.value } : n))}
-            placeholder="Nombre del paso"
+            placeholder={t("seg.loop.stepName")}
             className="text-xs"
           />
           <Textarea
             value={selectedNode.description}
             onChange={(e) => setNodes(rawNodes.map((n) => n.id === selectedNode.id ? { ...n, description: e.target.value } : n))}
-            placeholder="Qué hace el jugador, qué siente, qué decide…"
+            placeholder={t("seg.loop.stepDescription")}
             className="min-h-[60px] text-xs"
           />
         </div>
@@ -1254,7 +1268,7 @@ export function LoopEditor({ data, onChange }: { data: any; onChange: (d: any) =
       {/* Edges list — for editing labels (esp. "loop" marker) */}
       {edges.length > 0 ? (
         <div>
-          <label className="!mb-1">Conexiones ({edges.length})</label>
+          <label className="!mb-1">{t("seg.loop.connections", { n: edges.length })}</label>
           <div className="space-y-1">
             {edges.map((e: any, i: number) => (
               <div key={i} className="flex items-center gap-1 text-[11px]">
@@ -1264,7 +1278,7 @@ export function LoopEditor({ data, onChange }: { data: any; onChange: (d: any) =
                 <Input
                   value={e.label || ""}
                   onChange={(ev) => setEdges(edges.map((x: any, j: number) => j === i ? { ...x, label: ev.target.value } : x))}
-                  placeholder="label (escribí 'loop' para la flecha dashed)"
+                  placeholder={t("seg.loop.edgePlaceholder")}
                   className="text-[11px] flex-1"
                 />
                 <button

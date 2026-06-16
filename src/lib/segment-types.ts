@@ -35,8 +35,10 @@ export type Segment = {
   data: any;
 };
 
-// ponytail: legacy alias. Some views render the key directly instead of
-// translating it; keep both names so the codebase compiles.
+// ponytail: i18n keys for the long segment type labels (sidebar, drag overlay).
+// Caller must pass through t() — SEGMENT_LABELS is a function for the
+// resolved map, SEGMENT_LABEL_KEYS is the key-only map for callers that
+// already have t() in scope.
 export const SEGMENT_LABEL_KEYS: Record<SegmentType, string> = {
   hero: "seg.label.hero",
   text: "seg.label.text",
@@ -52,7 +54,22 @@ export const SEGMENT_LABEL_KEYS: Record<SegmentType, string> = {
   tension: "seg.label.tension",
 };
 
-export const SEGMENT_LABELS: Record<SegmentType, string> = SEGMENT_LABEL_KEYS;
+export function getSegmentLabels(t: (k: string) => string): Record<SegmentType, string> {
+  return {
+    hero: t("seg.label.hero"),
+    text: t("seg.label.text"),
+    image: t("seg.label.image"),
+    grid: t("seg.label.grid"),
+    callout: t("seg.label.callout"),
+    character: t("seg.label.character"),
+    enemy: t("seg.label.enemy"),
+    boss: t("seg.label.boss"),
+    loop: t("seg.label.loop"),
+    dialogue: t("seg.label.dialogue"),
+    note: t("seg.label.note"),
+    tension: t("seg.label.tension"),
+  };
+}
 
 export const SEGMENT_TITLE_KEYS: Record<SegmentType, string> = {
   hero: "seg.title.hero",

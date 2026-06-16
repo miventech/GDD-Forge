@@ -6,8 +6,10 @@ import { NodeCanvas } from "@/components/gdd/NodeCanvas";
 import { useBrainstorm, actions } from "@/lib/gdd-store";
 import type { BrainstormNode, BrainstormEdge } from "@/lib/gdd-file";
 import { newId } from "@/lib/gdd-file";
+import { useT } from "@/lib/i18n";
 
 export function BrainstormCanvas() {
+  const { t } = useT();
   const data = useBrainstorm();
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
 
@@ -105,25 +107,25 @@ export function BrainstormCanvas() {
         <div>
           <h1 className="text-lg font-medium text-ink-primary inline-flex items-center gap-2">
             <GitBranch className="w-4 h-4" />
-            Brainstorm
+            {t("brainstorm.title")}
           </h1>
           <p className="text-[11px] text-ink-tertiary mt-0.5">
-            Lluvia de ideas. Cada nodo es una idea. Conectalas para ver relaciones.
+            {t("brainstorm.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={addNode} size="sm" variant="outline">
-            <Plus className="w-3.5 h-3.5" /> Idea
+            <Plus className="w-3.5 h-3.5" /> {t("brainstorm.idea")}
           </Button>
           <Button onClick={addGroup} size="sm" variant="outline">
-            <Group className="w-3.5 h-3.5" /> Grupo
+            <Group className="w-3.5 h-3.5" /> {t("brainstorm.group")}
           </Button>
         </div>
       </div>
 
       <div className="text-[11px] text-ink-tertiary mb-2">
-        {data.nodes.length} ideas · {data.edges.length} conexiones · {(data.shapes ?? []).length} grupos
-        <span className="ml-2 text-ink-tertiary">· auto-guardado</span>
+        {t("brainstorm.stats", { nodes: data.nodes.length, edges: data.edges.length, shapes: data.shapes?.length ?? 0 })}
+        <span className="ml-2 text-ink-tertiary">· {t("editor.autoSaved")}</span>
       </div>
 
       <div className="flex-1 min-h-0">
@@ -155,6 +157,7 @@ export function BrainstormCanvas() {
 }
 
 function BrainstormNodeBody({ node, onText }: { node: BrainstormNode; onText: (id: string, t: string) => void }) {
+  const { t } = useT();
   return (
     <div className="w-full h-full bg-bg-primary border border-line rounded-lg p-2 flex flex-col gap-1">
       <div className="flex items-center gap-1">
@@ -166,7 +169,7 @@ function BrainstormNodeBody({ node, onText }: { node: BrainstormNode; onText: (i
         value={node.text}
         onChange={(e) => onText(node.id, e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
-        placeholder="Escribí la idea…"
+        placeholder={t("brainstorm.placeholder")}
         className="flex-1 w-full text-[11px] text-ink-primary bg-transparent border-none outline-none resize-none placeholder:text-ink-tertiary leading-tight"
       />
     </div>

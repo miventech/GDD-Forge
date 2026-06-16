@@ -3,21 +3,27 @@ import { useState } from "react";
 import { Plus, Trash2, CheckCircle2, Circle, Wrench, Scissors, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Textarea } from "@/components/ui/Input";
-import { SEGMENT_LABELS } from "@/lib/segment-types";
+import { getSegmentLabels } from "@/lib/segment-types";
 import { useFeatures, useSegments, actions } from "@/lib/gdd-store";
 import type { Feature, FeatureStatus } from "@/lib/gdd-file";
 import { newId } from "@/lib/gdd-file";
+import { useT } from "@/lib/i18n";
 
-const STATUS_META: Record<FeatureStatus, { label: string; Icon: any; color: string }> = {
-  planned: { label: "Planeada", Icon: Circle, color: "ink-tertiary" },
-  "in-progress": { label: "En desarrollo", Icon: Wrench, color: "amber" },
-  done: { label: "Hecha", Icon: CheckCircle2, color: "teal" },
-  cut: { label: "Cortada", Icon: Scissors, color: "red" },
-};
+function getStatusMeta(t: (k: string) => string): Record<FeatureStatus, { label: string; Icon: any; color: string }> {
+  return {
+    planned: { label: t("features.status.planned"), Icon: Circle, color: "ink-tertiary" },
+    "in-progress": { label: t("features.status.inProgress"), Icon: Wrench, color: "amber" },
+    done: { label: t("features.status.done"), Icon: CheckCircle2, color: "teal" },
+    cut: { label: t("features.status.cut"), Icon: Scissors, color: "red" },
+  };
+}
 
 const STATUS_ORDER: FeatureStatus[] = ["planned", "in-progress", "done", "cut"];
 
 export function FeaturesClient() {
+  const t = useT();
+  const STATUS_META = getStatusMeta(t);
+  const SEGMENT_LABELS = getSegmentLabels(t);
   const items = useFeatures();
   const segments = useSegments();
   const [adding, setAdding] = useState(false);
@@ -39,7 +45,7 @@ export function FeaturesClient() {
 
   function onSave() {
     if (!draft.name.trim()) {
-      setError("Nombre requerido");
+      setError(t("features.nameRequired"));
       return;
     }
     if (editingId) {
@@ -80,7 +86,7 @@ export function FeaturesClient() {
   }
 
   function onDelete(id: string) {
-    if (!confirm("¿Eliminar esta feature? Se quitará de las dependencias de las demás.")) return;
+    if (!confirm(t("features.deleteConfirm"))) return;
     const remaining = items
       .filter((f) => f.id !== id)
       .map((f) => ({
@@ -119,10 +125,10 @@ export function FeaturesClient() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
       <div className="mb-6">
         <h1 className="text-3xl font-medium text-ink-primary flex items-center gap-2">
-          Features y dependencias
+          {t("features.title")}
         </h1>
         <p className="text-sm text-ink-secondary mt-1">
-          Mapeá las features del juego, sus dependencias entre sí, y los segmentos que las implementan.
+          {t("features.subtitle")}
         </p>
       </div>
 
@@ -137,7 +143,7 @@ export function FeaturesClient() {
                 className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-bg-secondary font-medium"
                 style={{ color: `var(--${meta.color})` }}
               >
-                <Icon className="w-3 h-3" /> {counts[s]} {meta.label.toLowerCase()}
+                <Icon className="w-3 h-3" /> {t(`features.counts.${s}`, { n: counts[s] })}
               </span>
             );
           })}
@@ -145,22 +151,22 @@ export function FeaturesClient() {
 
         {!adding && !editingId ? (
           <Button onClick={() => setAdding(true)}>
-            <Plus className="w-3.5 h-3.5" /> Nueva feature
+            <Plus className="w-3.5 h-3.5" /> {t("features.new")}
           </Button>
         ) : (
           <div className="bg-bg-primary border border-line rounded-lg p-4 space-y-3">
             <p className="text-xs font-medium text-ink-secondary">
-              {editingId ? "Editar feature" : "Nueva feature"}
+              {editingId ? t("features.editTitle") : t("features.newTitle")}
             </p>
-            <Field label="Nombre">
+            <Field label={t("features.name")}>
               <Input
                 value={draft.name}
                 onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                placeholder="Dash con i-frames"
+                placeholder={t("features.placeholder")}
                 autoFocus
               />
             </Field>
-            <Field label="Descripción (opcional)">
+            <Field label={t("features.description")}>
               <Textarea
                 value={draft.description}
                 onChange={(e) => setDraft({ ...draft, description: e.target.value })}
@@ -168,7 +174,7 @@ export function FeaturesClient() {
               />
             </Field>
             {items.length > 1 ? (
-              <Field label="Depende de (otras features)">
+              <Field label={t("features.dependsOn")}>
                 <div className="border border-line rounded-md p-2 max-h-32 overflow-y-auto space-y-1">
                   {items
                     .filter((f) => f.id !== editingId)
@@ -190,7 +196,7 @@ export function FeaturesClient() {
               </Field>
             ) : null}
             {segments.length > 0 ? (
-              <Field label="Implementa (segmentos del GDD)">
+              <Field label={t("features.implements")}>
                 <div className="border border-line rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
                   {segments.map((s) => (
                     <label
@@ -215,16 +221,16 @@ export function FeaturesClient() {
             {error ? <p className="text-xs text-red">{error}</p> : null}
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={reset}>
-                Cancelar
+                {t("common.cancel")}
               </Button>
-              <Button onClick={onSave}>{editingId ? "Guardar" : "Crear"}</Button>
+              <Button onClick={onSave}>{editingId ? t("common.save") : t("common.create")}</Button>
             </div>
           </div>
         )}
 
         {items.length === 0 ? (
           <div className="bg-bg-primary border border-dashed border-line-strong rounded-lg p-10 text-center">
-            <p className="text-sm text-ink-secondary">Sin features todavía.</p>
+            <p className="text-sm text-ink-secondary">{t("features.empty")}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -261,7 +267,7 @@ export function FeaturesClient() {
                     {linked.length > 0 ? (
                       <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] text-ink-tertiary uppercase tracking-wider inline-flex items-center gap-1">
-                          <Link2 className="w-2.5 h-2.5" /> Implementa:
+                          <Link2 className="w-2.5 h-2.5" /> {t("features.implementsLabel")}
                         </span>
                         {linked.map((s) => (
                           <span
@@ -277,7 +283,7 @@ export function FeaturesClient() {
                     {f.dependsOn.length > 0 ? (
                       <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] text-ink-tertiary uppercase tracking-wider">
-                          Depende de:
+                          {t("features.dependsOnLabel")}
                         </span>
                         {f.dependsOn.map((id) => (
                           <span
@@ -298,7 +304,7 @@ export function FeaturesClient() {
                           key={s}
                           onClick={() => onSetStatus(f.id, s)}
                           className="p-1.5 text-ink-tertiary hover:text-ink-primary"
-                          title={`Marcar como ${M.label}`}
+                          title={t("features.markAs", { label: M.label })}
                         >
                           <M.Icon className="w-3.5 h-3.5" />
                         </button>
@@ -307,14 +313,14 @@ export function FeaturesClient() {
                     <button
                       onClick={() => onEditStart(f)}
                       className="p-1.5 text-ink-tertiary hover:text-ink-primary"
-                      title="Editar"
+                      title={t("common.edit")}
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => onDelete(f.id)}
                       className="p-1.5 text-ink-tertiary hover:text-red"
-                      title="Eliminar"
+                      title={t("common.delete")}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

@@ -60,13 +60,14 @@ export function HeroView({ d }: { d: HeroData }) {
 // TEXT
 // =====================================================
 export function TextView({ d, allSegments }: { d: TextData; allSegments?: SegmentForLinks[] }) {
+  const { t } = useT();
   return (
     <div className="mb-7">
       {d.heading ? (
         <h3 className="text-base font-medium text-ink-primary mb-2">{d.heading}</h3>
       ) : null}
       <p className="text-[13px] text-ink-secondary leading-[1.7] whitespace-pre-wrap">
-        {allSegments ? renderTextWithLinks(d.body, allSegments) : d.body}
+        {allSegments ? renderTextWithLinks(d.body, allSegments, t) : d.body}
       </p>
     </div>
   );
@@ -415,6 +416,7 @@ export function BossView({ d }: { d: BossData }) {
 // CORE LOOP (directed graph, circular layout)
 // =====================================================
 export function LoopView({ d }: { d: LoopData }) {
+  const { t } = useT();
   const rawNodes = d.nodes || [];
   const edges = (d.edges || []).filter((e) => rawNodes.some((n) => n.id === e.from) && rawNodes.some((n) => n.id === e.to));
   const nodes = ensureLoopPositions(rawNodes);
@@ -433,7 +435,7 @@ export function LoopView({ d }: { d: LoopData }) {
 
       {nodes.length === 0 ? (
         <div className="text-center text-xs text-ink-tertiary border border-dashed border-line rounded-md p-6">
-          Sin nodos. Agregá nodos en el editor para visualizar el loop.
+          {t("seg.view.noNodes")}
         </div>
       ) : (
         <NodeCanvas
@@ -445,7 +447,7 @@ export function LoopView({ d }: { d: LoopData }) {
               <div className="flex items-center gap-1">
                 <span className="text-[9px] font-mono text-ink-tertiary">{n.id}</span>
                 <span className="text-xs font-medium text-ink-primary truncate flex-1">
-                  {n.label || "(sin nombre)"}
+                  {n.label || t("seg.view.untitled")}
                 </span>
               </div>
               {n.description ? (
@@ -465,7 +467,7 @@ export function LoopView({ d }: { d: LoopData }) {
                 {i + 1}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-ink-primary">{n.label || "(sin nombre)"}</p>
+                <p className="text-sm font-medium text-ink-primary">{n.label || t("seg.view.untitled")}</p>
                 {n.description ? (
                   <p className="text-xs text-ink-secondary mt-0.5">{n.description}</p>
                 ) : null}
@@ -483,6 +485,7 @@ export function LoopView({ d }: { d: LoopData }) {
 // =====================================================
 
 export function DialogueView({ d }: { d: DialogueData }) {
+  const { t } = useT();
   const rawNodes = d.nodes || [];
   const startId = d.startNodeId && rawNodes.some((n) => n.id === d.startNodeId) ? d.startNodeId : rawNodes[0]?.id ?? null;
   const nodes = ensureDialoguePositions(rawNodes, startId);
@@ -501,7 +504,7 @@ export function DialogueView({ d }: { d: DialogueData }) {
         <header className="mb-3">
           <h3 className="text-base font-medium text-ink-primary inline-flex items-center gap-2">
             <DynamicIcon name="MessageCircle" size={14} />
-            {d.name || "Diálogo NPC"}
+            {d.name || t("seg.view.dialogueDefault")}
           </h3>
           {d.description ? <p className="text-xs text-ink-secondary mt-1">{d.description}</p> : null}
         </header>
@@ -509,7 +512,7 @@ export function DialogueView({ d }: { d: DialogueData }) {
 
       {nodes.length === 0 ? (
         <div className="text-center text-xs text-ink-tertiary border border-dashed border-line rounded-md p-6">
-          Sin nodos. Agregá nodos en el editor.
+          {t("seg.view.noNodesEdit")}
         </div>
       ) : (
         <NodeCanvas
@@ -526,11 +529,11 @@ export function DialogueView({ d }: { d: DialogueData }) {
                 <span className="text-[9px] font-mono text-ink-tertiary">{n.id}</span>
                 {isStart ? <span className="text-[8px] font-bold text-teal-dark">▶</span> : null}
                 <span className="text-[10px] font-semibold text-ink-secondary truncate flex-1">
-                  {n.speaker || "?"}
+                  {n.speaker || t("seg.dialogue.speakerDefault")}
                 </span>
               </div>
               <p className="text-[10px] text-ink-primary line-clamp-2 leading-tight">
-                {n.text || "(sin texto)"}
+                {n.text || t("seg.view.noText")}
               </p>
             </div>
           )}
@@ -544,19 +547,19 @@ export function DialogueView({ d }: { d: DialogueData }) {
             <div key={n.id} className="bg-bg-primary border border-line rounded-md p-2.5">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[10px] uppercase tracking-wider font-semibold text-teal-dark bg-teal-light px-1.5 py-0.5 rounded">
-                  {n.speaker || "?"}
+                  {n.speaker || t("seg.dialogue.speakerDefault")}
                 </span>
                 {n.id === startId ? (
-                  <span className="text-[9px] uppercase tracking-wider font-semibold text-ink-tertiary">inicio</span>
+                  <span className="text-[9px] uppercase tracking-wider font-semibold text-ink-tertiary">{t("seg.view.dialogueStart")}</span>
                 ) : null}
               </div>
-              <p className="text-xs text-ink-primary whitespace-pre-wrap">{n.text || "(sin texto)"}</p>
+              <p className="text-xs text-ink-primary whitespace-pre-wrap">{n.text || t("seg.view.noText")}</p>
               {n.choices.length > 0 ? (
                 <ul className="mt-2 space-y-1 border-t border-line pt-2">
                   {n.choices.map((c, j) => (
                     <li key={j} className="text-[11px] text-ink-secondary flex gap-2">
                       <span className="text-teal-dark font-semibold flex-shrink-0">▸</span>
-                      <span>{c.label || "(sin texto)"}</span>
+                      <span>{c.label || t("seg.view.noText")}</span>
                       <span className="text-ink-tertiary">→ {c.nextNodeId}</span>
                     </li>
                   ))}
@@ -576,6 +579,7 @@ export function DialogueView({ d }: { d: DialogueData }) {
 // NOTE (Lienzo) — drawing (data URL) + optional text
 // =====================================================
 export function NoteView({ d }: { d: NoteData }) {
+  const { t } = useT();
   const drawingUrl = useAssetUrl(d.drawing);
   return (
     <div className="mb-7">
@@ -589,7 +593,7 @@ export function NoteView({ d }: { d: NoteData }) {
       ) : null}
       {drawingUrl ? (
         <div className="bg-bg-secondary border border-line rounded-lg p-2 mb-3">
-          <img src={drawingUrl} alt={d.title || "Lienzo"} className="w-full h-auto rounded bg-white" />
+          <img src={drawingUrl} alt={d.title || t("seg.view.canvas")} className="w-full h-auto rounded bg-white" />
         </div>
       ) : null}
       {d.body ? (
@@ -598,7 +602,7 @@ export function NoteView({ d }: { d: NoteData }) {
         </pre>
       ) : null}
       {!d.drawing && !d.body ? (
-        <p className="text-xs text-ink-tertiary italic">Lienzo vacío. Editá el segmento para dibujar.</p>
+        <p className="text-xs text-ink-tertiary italic">{t("seg.view.emptyCanvas")}</p>
       ) : null}
     </div>
   );

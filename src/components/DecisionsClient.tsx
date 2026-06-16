@@ -3,18 +3,24 @@ import { useState } from "react";
 import { Plus, Trash2, Check, X, RotateCcw, Circle, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Textarea } from "@/components/ui/Input";
-import { SEGMENT_LABELS } from "@/lib/segment-types";
+import { getSegmentLabels } from "@/lib/segment-types";
 import { useDecisions, useSegments, actions } from "@/lib/gdd-store";
 import type { Decision, DecisionStatus } from "@/lib/gdd-file";
 import { newId } from "@/lib/gdd-file";
+import { useT } from "@/lib/i18n";
 
-const STATUS_META: Record<DecisionStatus, { label: string; Icon: any; color: string }> = {
-  open: { label: "Abierta", Icon: Circle, color: "amber" },
-  taken: { label: "Tomada", Icon: Check, color: "teal" },
-  reverted: { label: "Revertida", Icon: RotateCcw, color: "red" },
-};
+function getStatusMeta(t: (k: string) => string): Record<DecisionStatus, { label: string; Icon: any; color: string }> {
+  return {
+    open: { label: t("decisions.status.open"), Icon: Circle, color: "amber" },
+    taken: { label: t("decisions.status.taken"), Icon: Check, color: "teal" },
+    reverted: { label: t("decisions.status.reverted"), Icon: RotateCcw, color: "red" },
+  };
+}
 
 export function DecisionsClient() {
+  const t = useT();
+  const STATUS_META = getStatusMeta(t);
+  const SEGMENT_LABELS = getSegmentLabels(t);
   const items = useDecisions();
   const segments = useSegments();
   const [adding, setAdding] = useState(false);
@@ -29,7 +35,7 @@ export function DecisionsClient() {
 
   function onAdd() {
     if (!draft.title.trim()) {
-      setError("Título requerido");
+      setError(t("decisions.titleRequired"));
       return;
     }
     const dec: Decision = {
@@ -56,7 +62,7 @@ export function DecisionsClient() {
   }
 
   function onDelete(id: string) {
-    if (!confirm("¿Eliminar esta decisión?")) return;
+    if (!confirm(t("decisions.deleteConfirm"))) return;
     actions.setDecisions(items.filter((d) => d.id !== id));
   }
 
@@ -80,50 +86,50 @@ export function DecisionsClient() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
       <div className="mb-6">
         <h1 className="text-3xl font-medium text-ink-primary flex items-center gap-2">
-          Decisiones de diseño
+          {t("decisions.title")}
         </h1>
         <p className="text-sm text-ink-secondary mt-1">
-          Llevá el registro de qué decisiones se tomaron, linkealas a los segmentos que afectan, y marcá su estado.
+          {t("decisions.subtitle")}
         </p>
       </div>
 
       <div className="space-y-5">
         <div className="flex items-center gap-2 text-xs text-ink-tertiary">
           <span className="px-2 py-0.5 rounded-full bg-amber-light text-amber-dark font-medium">
-            {counts.open} abiertas
+            {t("decisions.counts.open", { n: counts.open })}
           </span>
           <span className="px-2 py-0.5 rounded-full bg-teal-light text-teal-dark font-medium">
-            {counts.taken} tomadas
+            {t("decisions.counts.taken", { n: counts.taken })}
           </span>
           <span className="px-2 py-0.5 rounded-full bg-red-light text-red-dark font-medium">
-            {counts.reverted} revertidas
+            {t("decisions.counts.reverted", { n: counts.reverted })}
           </span>
         </div>
 
         {!adding ? (
           <Button onClick={() => setAdding(true)}>
-            <Plus className="w-3.5 h-3.5" /> Nueva decisión
+            <Plus className="w-3.5 h-3.5" /> {t("decisions.new")}
           </Button>
         ) : (
           <div className="bg-bg-primary border border-line rounded-lg p-4 space-y-3">
-            <Field label="Título">
+            <Field label={t("decisions.titleField")}>
               <Input
                 value={draft.title}
                 onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-                placeholder="¿Mecánica de dash reemplaza al roll?"
+                placeholder={t("decisions.placeholderTitle")}
                 autoFocus
               />
             </Field>
-            <Field label="Contexto (opcional)">
+            <Field label={t("decisions.context")}>
               <Textarea
                 value={draft.description}
                 onChange={(e) => setDraft({ ...draft, description: e.target.value })}
                 className="min-h-[70px]"
-                placeholder="Por qué se está considerando, opciones, tradeoffs…"
+                placeholder={t("decisions.placeholderContext")}
               />
             </Field>
             {segments.length > 0 ? (
-              <Field label="Afecta a" hint="Segmentos del GDD que esta decisión modifica o involucra.">
+              <Field label={t("decisions.affects")} hint={t("decisions.affectsHint")}>
                 <div className="border border-line rounded-md p-2 max-h-48 overflow-y-auto space-y-1">
                   {segments.map((s) => (
                     <label
@@ -148,16 +154,16 @@ export function DecisionsClient() {
             {error ? <p className="text-xs text-red">{error}</p> : null}
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={reset}>
-                Cancelar
+                {t("common.cancel")}
               </Button>
-              <Button onClick={onAdd}>Crear</Button>
+              <Button onClick={onAdd}>{t("common.create")}</Button>
             </div>
           </div>
         )}
 
         {items.length === 0 ? (
           <div className="bg-bg-primary border border-dashed border-line-strong rounded-lg p-10 text-center">
-            <p className="text-sm text-ink-secondary">Sin decisiones todavía.</p>
+            <p className="text-sm text-ink-secondary">{t("decisions.empty")}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -189,7 +195,7 @@ export function DecisionsClient() {
                     {linked.length > 0 ? (
                       <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] text-ink-tertiary uppercase tracking-wider inline-flex items-center gap-1">
-                          <Link2 className="w-2.5 h-2.5" /> Afecta:
+                          <Link2 className="w-2.5 h-2.5" /> {t("decisions.affectsLabel")}
                         </span>
                         {linked.map((s) => (
                           <span
@@ -224,7 +230,7 @@ export function DecisionsClient() {
                       <button
                         onClick={() => onSetStatus(d.id, "open")}
                         className="p-1.5 text-ink-tertiary hover:text-ink-primary"
-                        title="Reabrir"
+                        title={t("decisions.reopen")}
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -233,7 +239,7 @@ export function DecisionsClient() {
                       <button
                         onClick={() => onSetStatus(d.id, "taken")}
                         className="p-1.5 text-ink-tertiary hover:text-teal-dark"
-                        title="Marcar tomada"
+                        title={t("decisions.markTaken")}
                       >
                         <Check className="w-3.5 h-3.5" />
                       </button>
@@ -242,7 +248,7 @@ export function DecisionsClient() {
                       <button
                         onClick={() => onSetStatus(d.id, "reverted")}
                         className="p-1.5 text-ink-tertiary hover:text-red"
-                        title="Marcar revertida"
+                        title={t("decisions.markReverted")}
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
                       </button>
@@ -250,7 +256,7 @@ export function DecisionsClient() {
                     <button
                       onClick={() => onDelete(d.id)}
                       className="p-1.5 text-ink-tertiary hover:text-red"
-                      title="Eliminar"
+                      title={t("common.delete")}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

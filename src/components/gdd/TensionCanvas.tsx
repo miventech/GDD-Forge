@@ -4,6 +4,7 @@ import { Trash2, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { curvePath, screenToData } from "@/lib/tension-curve";
 import type { TensionData, TensionPoint, TensionTheme } from "@/lib/segment-types";
+import { useT } from "@/lib/i18n";
 
 // ponytail: 2D chart editor. Click empty area to add a beat, drag a beat
 // to move it. Per-beat: color override + glyph icon. Chart theme: line/fill
@@ -17,49 +18,77 @@ const AXIS_RIGHT = 96;
 const AXIS_TOP = 6;
 
 // ponytail: tiny curated palettes. Plenty of variety, easy to scan.
-export const TENSION_COLOR_OPTIONS = [
-  { value: "#0d9488", label: "Teal" },
-  { value: "#2563eb", label: "Azul" },
-  { value: "#7c3aed", label: "Violeta" },
-  { value: "#dc2626", label: "Rojo" },
-  { value: "#ea580c", label: "Naranja" },
-  { value: "#ca8a04", label: "Amarillo" },
-  { value: "#16a34a", label: "Verde" },
-  { value: "#db2777", label: "Rosa" },
-  { value: "#475569", label: "Gris" },
-  { value: "#0f172a", label: "Negro" },
-];
+function getTensionColorOptions(t: (k: string) => string) {
+  return [
+    { value: "#0d9488", label: t("tension.color.teal") },
+    { value: "#2563eb", label: t("tension.color.blue") },
+    { value: "#7c3aed", label: t("tension.color.violet") },
+    { value: "#dc2626", label: t("tension.color.red") },
+    { value: "#ea580c", label: t("tension.color.orange") },
+    { value: "#ca8a04", label: t("tension.color.yellow") },
+    { value: "#16a34a", label: t("tension.color.green") },
+    { value: "#db2777", label: t("tension.color.pink") },
+    { value: "#475569", label: t("tension.color.gray") },
+    { value: "#0f172a", label: t("tension.color.black") },
+  ];
+}
 
-export const TENSION_ICON_OPTIONS: { value: string; label: string; glyph: string }[] = [
-  { value: "",       label: "(ninguno)", glyph: "" },
-  { value: "heart",  label: "Corazón",   glyph: "♥" },
-  { value: "star",   label: "Estrella",  glyph: "★" },
-  { value: "sword",  label: "Espada",    glyph: "⚔" },
-  { value: "flag",   label: "Bandera",   glyph: "⚑" },
-  { value: "spark",  label: "Brillo",    glyph: "✦" },
-  { value: "skull",  label: "Calavera",  glyph: "☠" },
-  { value: "bolt",   label: "Rayo",      glyph: "⚡" },
-  { value: "sun",    label: "Sol",       glyph: "☀" },
-  { value: "moon",   label: "Luna",      glyph: "☾" },
-  { value: "snow",   label: "Nieve",     glyph: "❄" },
-  { value: "warn",   label: "Alerta",    glyph: "⚠" },
-  { value: "crown",  label: "Corona",    glyph: "♛" },
-  { value: "target", label: "Objetivo",  glyph: "◎" },
-  { value: "anchor", label: "Ancla",     glyph: "⚓" },
-  { value: "fire",   label: "Fuego",     glyph: "✸" },
-  { value: "music",  label: "Música",    glyph: "♪" },
-  { value: "drop",   label: "Gota",      glyph: "◆" },
-];
+function getTensionIconOptions(t: (k: string) => string) {
+  return [
+    { value: "",       label: t("tension.icon.none"),   glyph: "" },
+    { value: "heart",  label: t("tension.icon.heart"),  glyph: "♥" },
+    { value: "star",   label: t("tension.icon.star"),   glyph: "★" },
+    { value: "sword",  label: t("tension.icon.sword"),  glyph: "⚔" },
+    { value: "flag",   label: t("tension.icon.flag"),   glyph: "⚑" },
+    { value: "spark",  label: t("tension.icon.spark"),  glyph: "✦" },
+    { value: "skull",  label: t("tension.icon.skull"),  glyph: "☠" },
+    { value: "bolt",   label: t("tension.icon.bolt"),   glyph: "⚡" },
+    { value: "sun",    label: t("tension.icon.sun"),    glyph: "☀" },
+    { value: "moon",   label: t("tension.icon.moon"),   glyph: "☾" },
+    { value: "snow",   label: t("tension.icon.snow"),   glyph: "❄" },
+    { value: "warn",   label: t("tension.icon.warn"),   glyph: "⚠" },
+    { value: "crown",  label: t("tension.icon.crown"),  glyph: "♛" },
+    { value: "target", label: t("tension.icon.target"), glyph: "◎" },
+    { value: "anchor", label: t("tension.icon.anchor"), glyph: "⚓" },
+    { value: "fire",   label: t("tension.icon.fire"),   glyph: "✸" },
+    { value: "music",  label: t("tension.icon.music"),  glyph: "♪" },
+    { value: "drop",   label: t("tension.icon.drop"),   glyph: "◆" },
+  ];
+}
 
 function getIconGlyph(value: string | undefined): string {
   if (!value) return "";
-  const opt = TENSION_ICON_OPTIONS.find((o) => o.value === value);
+  const opt = ICON_OPTIONS.find((o) => o.value === value);
   return opt?.glyph ?? value;
 }
 
 function getDefaultTheme(): TensionTheme {
   return { lineColor: "#0d9488", fillColor: "#0d9488", bgColor: "#fafaf8", textColor: "#27272a" };
 }
+
+// ponytail: glyph-only constant. Labels are localized inside the component.
+// The server-side export uses its own ICON_GLYPHS (tension-export.ts) and
+// doesn't depend on the labels.
+const ICON_OPTIONS: { value: string; label: string; glyph: string }[] = [
+  { value: "",       label: "", glyph: "" },
+  { value: "heart",  label: "", glyph: "♥" },
+  { value: "star",   label: "", glyph: "★" },
+  { value: "sword",  label: "", glyph: "⚔" },
+  { value: "flag",   label: "", glyph: "⚑" },
+  { value: "spark",  label: "", glyph: "✦" },
+  { value: "skull",  label: "", glyph: "☠" },
+  { value: "bolt",   label: "", glyph: "⚡" },
+  { value: "sun",    label: "", glyph: "☀" },
+  { value: "moon",   label: "", glyph: "☾" },
+  { value: "snow",   label: "", glyph: "❄" },
+  { value: "warn",   label: "", glyph: "⚠" },
+  { value: "crown",  label: "", glyph: "♛" },
+  { value: "target", label: "", glyph: "◎" },
+  { value: "anchor", label: "", glyph: "⚓" },
+  { value: "fire",   label: "", glyph: "✸" },
+  { value: "music",  label: "", glyph: "♪" },
+  { value: "drop",   label: "", glyph: "◆" },
+];
 
 function mergeTheme(t?: Partial<TensionTheme>): TensionTheme {
   return { ...getDefaultTheme(), ...(t ?? {}) };
@@ -74,6 +103,9 @@ export function TensionCanvas({
   onChange: (next: TensionData) => void;
   readOnly?: boolean;
 }) {
+  const { t } = useT();
+  const TENSION_COLOR_OPTIONS = getTensionColorOptions(t);
+  const TENSION_ICON_OPTIONS = getTensionIconOptions(t);
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drag, setDrag] = useState<{ id: string; offsetX: number; offsetY: number } | null>(null);
@@ -122,7 +154,7 @@ export function TensionCanvas({
       const id = `p${i}`;
       onChange({
         ...data,
-        beats: [...beats, { id, label: `Beat ${i}`, x: p.x, y: p.y }],
+        beats: [...beats, { id, label: t("tension.beatDefault", { n: i }), x: p.x, y: p.y }],
       });
       setSelectedId(id);
     },
@@ -337,11 +369,11 @@ export function TensionCanvas({
           {beats.length === 0 ? (
             <g style={{ pointerEvents: "none" }}>
               <text x="50" y="48" textAnchor="middle" fontSize="3.5" fill={theme.textColor} fillOpacity="0.5">
-                {readOnly ? "Sin datos" : "Hacé clic en el gráfico para agregar tu primer beat"}
+                {readOnly ? t("tension.noData") : t("tension.addFirst")}
               </text>
               {!readOnly ? (
                 <text x="50" y="55" textAnchor="middle" fontSize="2.5" fill={theme.textColor} fillOpacity="0.35">
-                  Después podés arrastrar cada beat para ajustar la curva
+                  {t("tension.afterAdd")}
                 </text>
               ) : null}
             </g>
@@ -352,7 +384,7 @@ export function TensionCanvas({
             className="absolute bottom-1.5 right-2 text-[9px] px-1.5 py-0.5 rounded pointer-events-none"
             style={{ color: theme.textColor, background: `${theme.bgColor}d0` }}
           >
-            click: agregar · drag: mover
+            {t("tension.hint")}
           </div>
         ) : null}
       </div>
@@ -364,29 +396,33 @@ export function TensionCanvas({
           <div className="rounded-md border border-line bg-bg-secondary/50 p-2 space-y-1.5">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] uppercase tracking-wider text-ink-tertiary font-semibold">
-                Colores del gráfico
+                {t("tension.colors")}
               </span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
               <ColorPicker
-                label="Línea"
+                label={t("tension.line")}
                 value={theme.lineColor}
                 onChange={(v) => updateTheme({ lineColor: v })}
+                options={TENSION_COLOR_OPTIONS}
               />
               <ColorPicker
-                label="Relleno"
+                label={t("tension.fill")}
                 value={theme.fillColor}
                 onChange={(v) => updateTheme({ fillColor: v })}
+                options={TENSION_COLOR_OPTIONS}
               />
               <ColorPicker
-                label="Fondo"
+                label={t("tension.bg")}
                 value={theme.bgColor}
                 onChange={(v) => updateTheme({ bgColor: v })}
+                options={TENSION_COLOR_OPTIONS}
               />
               <ColorPicker
-                label="Texto"
+                label={t("tension.text")}
                 value={theme.textColor}
                 onChange={(v) => updateTheme({ textColor: v })}
+                options={TENSION_COLOR_OPTIONS}
               />
             </div>
           </div>
@@ -395,23 +431,23 @@ export function TensionCanvas({
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
               <label className="text-[10px] uppercase tracking-wider text-ink-tertiary font-semibold">
-                Eje X (horizontal)
+                {t("tension.xAxis")}
               </label>
               <input
                 value={data.xAxisLabel}
                 onChange={(e) => onChange({ ...data, xAxisLabel: e.target.value })}
-                placeholder="Tiempo"
+                placeholder={t("tension.xAxisPlaceholder")}
                 className="w-full h-8 text-xs px-2 border border-line rounded-md bg-bg-primary text-ink-primary focus:outline-none focus:border-teal"
               />
             </div>
             <div className="space-y-1">
               <label className="text-[10px] uppercase tracking-wider text-ink-tertiary font-semibold">
-                Eje Y (vertical)
+                {t("tension.yAxis")}
               </label>
               <input
                 value={data.yAxisLabel}
                 onChange={(e) => onChange({ ...data, yAxisLabel: e.target.value })}
-                placeholder="Tensión"
+                placeholder={t("tension.yAxisPlaceholder")}
                 className="w-full h-8 text-xs px-2 border border-line rounded-md bg-bg-primary text-ink-primary focus:outline-none focus:border-teal"
               />
             </div>
@@ -434,7 +470,7 @@ export function TensionCanvas({
                     <select
                       value={selected.icon ?? ""}
                       onChange={(e) => updateBeat(selected.id, { icon: e.target.value || undefined })}
-                      title="Icono"
+                      title={t("tension.icon")}
                       className="h-8 text-xs px-2 border border-line rounded-md bg-bg-primary text-ink-primary"
                     >
                       {TENSION_ICON_OPTIONS.map((opt) => (
@@ -446,28 +482,29 @@ export function TensionCanvas({
                     <input
                       value={selected.label}
                       onChange={(e) => updateBeat(selected.id, { label: e.target.value })}
-                      placeholder="Etiqueta del beat"
+                      placeholder={t("tension.beatLabel")}
                       className="flex-1 min-w-[100px] h-8 text-xs px-2 border border-line rounded-md bg-bg-primary text-ink-primary focus:outline-none focus:border-teal"
                     />
                     <button
                       type="button"
                       onClick={() => deleteBeat(selected.id)}
                       className="h-8 px-2 inline-flex items-center gap-1 text-[11px] text-red hover:bg-red-light rounded-md border border-line"
-                      title="Eliminar beat"
+                      title={t("tension.deleteBeat")}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                   <ColorPicker
-                    label="Color del beat (override)"
+                    label={t("tension.beatColor")}
                     value={selected.color ?? ""}
                     onChange={(v) => updateBeat(selected.id, { color: v || undefined })}
                     allowClear
+                    options={TENSION_COLOR_OPTIONS}
                   />
                 </>
               ) : (
                 <p className="text-[11px] text-ink-tertiary italic">
-                  Hacé clic en un beat para editarlo, o en el área vacía para agregar uno.
+                  {t("tension.beatHint")}
                 </p>
               )}
             </div>
@@ -482,7 +519,7 @@ export function TensionCanvas({
                     : "border-line text-ink-tertiary hover:text-ink-primary"
                 )}
               >
-                Etiquetas
+                {t("tension.labelsToggle")}
               </button>
               <button
                 type="button"
@@ -494,7 +531,7 @@ export function TensionCanvas({
                     : "border-line text-ink-tertiary hover:text-ink-primary"
                 )}
               >
-                Ejes
+                {t("tension.axesToggle")}
               </button>
             </div>
           </div>
@@ -509,12 +546,15 @@ function ColorPicker({
   value,
   onChange,
   allowClear,
+  options,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   allowClear?: boolean;
+  options: { value: string; label: string }[];
 }) {
+  const { t } = useT();
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between gap-1.5">
@@ -525,14 +565,14 @@ function ColorPicker({
           <span
             className="w-3.5 h-3.5 rounded border border-line"
             style={{ background: value || "transparent" }}
-            title={value || "(vacío)"}
+            title={value || t("tension.emptyColor")}
           />
           {allowClear && value ? (
             <button
               type="button"
               onClick={() => onChange("")}
               className="text-[10px] text-ink-tertiary hover:text-red"
-              title="Usar color del tema"
+              title={t("tension.clearColor")}
             >
               ×
             </button>
@@ -540,7 +580,7 @@ function ColorPicker({
         </div>
       </div>
       <div className="flex flex-wrap gap-1">
-        {TENSION_COLOR_OPTIONS.map((c) => (
+        {options.map((c) => (
           <button
             key={c.value}
             type="button"
@@ -597,4 +637,4 @@ export function TensionView({ d }: { d: TensionData }) {
 }
 
 // Helper exported for the server-side export to share the icon glyph table.
-export { TENSION_ICON_OPTIONS as _ICON_OPTIONS_FOR_EXPORT, getIconGlyph as _getIconGlyphForExport };
+export { ICON_OPTIONS as _ICON_OPTIONS_FOR_EXPORT, getIconGlyph as _getIconGlyphForExport };

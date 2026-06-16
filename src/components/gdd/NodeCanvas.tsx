@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 
 // =====================================================
 // 2D node canvas — drag nodes to move, drag from a port
@@ -123,6 +124,7 @@ export function NodeCanvas<T extends PositionedNode>({
   selectedShapeId?: string | null;
   onSelectShape?: (id: string | null) => void;
 }) {
+  const { t } = useT();
   const containerRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<DragState>(null);
   const [view, setView] = useState<View>({ panX: 0, panY: 0, zoom: 1 });
@@ -466,7 +468,7 @@ export function NodeCanvas<T extends PositionedNode>({
             return (
               <g key={i} data-edge={i} style={{ pointerEvents: "auto", cursor: readOnly ? "default" : "pointer" }} onClick={(ev) => {
                 ev.stopPropagation();
-                if (!readOnly && confirm("¿Eliminar esta conexión?")) onDeleteEdge?.(i);
+                if (!readOnly && confirm(t("node.deleteEdgeConfirm"))) onDeleteEdge?.(i);
               }}>
                 <path d={path} fill="none" stroke="transparent" strokeWidth="12" />
                 <path
@@ -547,7 +549,7 @@ export function NodeCanvas<T extends PositionedNode>({
                           transform: "translate(-50%, -50%)",
                           pointerEvents: "auto",
                         }}
-                        title={`Conectar desde ${pid}`}
+                        title={t("node.connectFrom", { port: pid })}
                       />
                     );
                   })}
@@ -559,11 +561,11 @@ export function NodeCanvas<T extends PositionedNode>({
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (confirm("¿Eliminar este nodo?")) onDeleteNode(n.id);
+                    if (confirm(t("node.deleteConfirm"))) onDeleteNode(n.id);
                   }}
                   className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-bg-primary border border-line text-ink-tertiary hover:text-red hover:border-red text-[10px] grid place-items-center z-10"
                   style={{ pointerEvents: "auto" }}
-                  title="Eliminar nodo"
+                  title={t("node.deleteNode")}
                 >
                   ×
                 </button>
@@ -589,31 +591,31 @@ export function NodeCanvas<T extends PositionedNode>({
           type="button"
           onClick={() => zoomCentered(view.zoom / 1.2)}
           className="w-6 h-6 grid place-items-center text-ink-secondary hover:text-ink-primary hover:bg-bg-secondary rounded"
-          title="Zoom out"
+          title={t("node.zoomOut")}
         >−</button>
         <button
           type="button"
           onClick={resetView}
           className="px-1.5 h-6 text-ink-secondary hover:text-ink-primary hover:bg-bg-secondary rounded font-mono"
-          title="Reset (100%)"
+          title={t("node.zoomReset")}
         >{Math.round(view.zoom * 100)}%</button>
         <button
           type="button"
           onClick={() => zoomCentered(view.zoom * 1.2)}
           className="w-6 h-6 grid place-items-center text-ink-secondary hover:text-ink-primary hover:bg-bg-secondary rounded"
-          title="Zoom in"
+          title={t("node.zoomIn")}
         >+</button>
         <button
           type="button"
           onClick={fitView}
           className="px-1.5 h-6 text-ink-secondary hover:text-ink-primary hover:bg-bg-secondary rounded"
-          title="Fit to content"
+          title={t("node.zoomFit")}
         >fit</button>
       </div>
 
       {/* Hint (bottom-right) */}
       <div className="absolute bottom-2 right-2 text-[9px] text-ink-tertiary bg-bg-primary/80 backdrop-blur px-1.5 py-0.5 rounded pointer-events-none">
-        drag: nodos · fondo: pan · scroll: pan · Ctrl+scroll: zoom
+        {t("node.hint")}
       </div>
     </div>
   );
