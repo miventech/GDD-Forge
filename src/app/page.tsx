@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, BookOpen, CheckSquare, Image as ImageIcon, Sparkles, FolderOpen, Trash2 } from "lucide-react";
+import { ArrowRight, BookOpen, CheckSquare, Image as ImageIcon, Sparkles, FolderOpen, Trash2, Github } from "lucide-react";
 import * as Lucide from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -308,9 +308,31 @@ export default function HomePage() {
       </section>
 
       <footer className="border-t border-line">
-        <div className="max-w-5xl mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-2 text-xs text-ink-tertiary">
+        <div className="max-w-5xl mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-tertiary">
           <p>{t("home.footer.copy")}</p>
-          <p>{t("home.footer.icons")}</p>
+          <div className="flex items-center gap-3">
+            <p>{t("home.footer.icons")}</p>
+            <span aria-hidden>·</span>
+            <a
+              href="https://github.com/miventech/GDDManagerLite"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 hover:text-ink-primary"
+              title="GDDManagerLite on GitHub"
+            >
+              <Github className="w-3.5 h-3.5" />
+              Source
+            </a>
+            <a
+              href="https://github.com/miventech"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-ink-primary"
+              title="Miventech on GitHub"
+            >
+              by Miventech
+            </a>
+          </div>
         </div>
       </footer>
     </main>
