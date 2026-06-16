@@ -41,17 +41,17 @@ export function TagEditor({
   return (
     <div className={cn("space-y-1.5", className)}>
       <div className="flex flex-wrap items-center gap-1">
-        {tags.map((t) => (
+        {tags.map((tag) => (
           <span
-            key={t}
+            key={tag}
             className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-purple-light text-purple-dark font-medium"
           >
-            #{t}
+            #{tag}
             <button
               type="button"
-              onClick={() => remove(t)}
+              onClick={() => remove(tag)}
               className="hover:text-red"
-              title={t("tags.removeTag", { tag: t })}
+              title={t("tags.removeTag", { tag })}
             >
               <X className="w-2.5 h-2.5" />
             </button>
