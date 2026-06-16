@@ -136,7 +136,7 @@ export function BrainstormCanvas() {
             toPort: e.toPort ?? undefined,
             label: e.label ?? undefined,
           }))}
-          shapes={data.shapes ?? []}
+          shapes={(data.shapes ?? []).map((s) => ({ ...s, label: s.label ?? undefined }))}
           selectedShapeId={selectedShapeId}
           onSelectShape={setSelectedShapeId}
           onMoveShape={moveShape}
