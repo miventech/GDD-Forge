@@ -18,7 +18,7 @@ function getStatusMeta(t: (k: string) => string): Record<DecisionStatus, { label
 }
 
 export function DecisionsClient() {
-  const t = useT();
+  const { t } = useT();
   const STATUS_META = getStatusMeta(t);
   const SEGMENT_LABELS = getSegmentLabels(t);
   const items = useDecisions();

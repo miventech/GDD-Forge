@@ -21,7 +21,7 @@ function getStatusMeta(t: (k: string) => string): Record<FeatureStatus, { label:
 const STATUS_ORDER: FeatureStatus[] = ["planned", "in-progress", "done", "cut"];
 
 export function FeaturesClient() {
-  const t = useT();
+  const { t } = useT();
   const STATUS_META = getStatusMeta(t);
   const SEGMENT_LABELS = getSegmentLabels(t);
   const items = useFeatures();
